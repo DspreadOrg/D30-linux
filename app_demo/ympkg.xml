@@ -1,0 +1,11 @@
+<?xml  version="1.0"  encoding="utf-8"?>
+	<ympkg  version="V0.1">
+	<ympkg_type>YUNMA_POS_APP</ympkg_type>
+	<ympkg_param>ONLY_RUN</ympkg_param>
+	<ympkg_name>LVGL_UI/LVGL_UI</ympkg_name>
+	<ympkg_version>V1.0-231215</ympkg_version>
+	<ympkg_framwork_version>V0.1</ympkg_framwork_version>
+	<ympkg_icon>1.bmp</ympkg_icon>
+	<ympkg_launcher>LVGL_UI</ympkg_launcher>
+	<ympkg_permission>YM_UI/PRINTER/MARGECARD</ympkg_permission>
+	</ympkg>
