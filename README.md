@@ -16,7 +16,25 @@ This is a Linux-based POS (Point of Sale) application built using the LVGL UI fr
 
 ### Directory Structure
 
-![1748512369788](C:\Users\yc\Documents\WeChat Files\lyl20110601\FileStorage\Temp\1748512369788.png)
+```
+app_demo/
+├── build/ # Build output directory 
+├── inc/ # Header files
+│ └── dspread/ # Device-specific headers
+├── pkg_bat/ # Build scripts
+├── release/ # Release binaries
+│ └── bin/ # Stripped executables
+└── src/ # Source code
+├── business/ # Business logic
+├── http/ # HTTP communication
+├── lvgl/ # LVGL UI framework
+│ ├── porting/ # Platform-specific adaptations
+│ └── src/ # LVGL source
+├── network/ # Network functionality
+├── ota/ # Over-the-air updates
+├── ui/ # UI implementation
+└── utils/ # Utility functions
+```
 
 ## Building the Application
 
