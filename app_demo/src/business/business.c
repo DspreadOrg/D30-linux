@@ -35,7 +35,7 @@ static const char *EMV_RETURN_CODE[] =
 
 KB_KEYMAP_T KB_nWaitKeyMS(Int32 MS)
 {
-	Disp_ReleasKey(); //清除缓存键值
+	Disp_ReleasKey(); //Clear cache key values
 	return  Disp_GetKey(MS);
 }
 
@@ -241,9 +241,10 @@ void* thread_function(void* arg) {
     return NULL;
 }
 
-void sale_process(){
+void sale_init(){
     clear_transaction_data();
     g_transactionData.nTransType = TT_SALE;
+    g_transactionData.nStatus = APP_RC_START;
     Business_GetTradeNum(g_transactionData.sTrace,sizeof(g_transactionData.sTrace));
     Business_GetBatchNum(g_transactionData.sBatch,sizeof(g_transactionData.sBatch));
     Business_getSysTimeStr(g_transactionData.sTransTime,sizeof(g_transactionData.sTransTime));
@@ -251,7 +252,9 @@ void sale_process(){
     strcat(g_transactionData.sOrderNo,g_transactionData.sTrace);
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, thread_function, NULL);
+    #ifndef MAIN_UI_NEW
     event_ui_register(UI_ENTER_AMOUNT);
+    #endif
 }
 
 void read_cards_process(){
@@ -300,6 +303,7 @@ void read_cards_process(){
             else
                 OsLog(LOG_DEBUG,"emv kernel recode [UNKNOWN]");     
         #endif
+        g_transactionData.nStatus = nEmvRet;
         switch(nEmvRet)
         {
             case APP_RC_COMPLETED:
@@ -311,7 +315,7 @@ void read_cards_process(){
                 break;
             case APP_RC_TRANS_REVERSEL:
 // Start reversal trading
-                set_fail_msg("Please execute a reversal transaction");
+                set_fail_msg("Please execute\n a reversal transaction");
                 event_ui_register(UI_RESULT_FAIL);
                 break;
             default:
@@ -329,6 +333,12 @@ void stop_readcards(){
 void start_print(){
     int ret = PrintOrder(1,get_transaction_data());
     if(ret != RET_OK){
+    DSP_Info(ret == ERR_PRN_BUSY?(char*)"Printer Busy":
+        ret == ERR_PRN_PAPEROUT?(char*)"Printer Paper Out":
+        ret == ERR_PRN_OVERHEAT?(char*)"Printer Overheat":
+        ret == ERR_PRN_OVERVOLTAGE?(char*)"Printer Overvoltage ":
+        ret == ERR_BATTERY_VOLTAGE_TOO_LOW?(char*)"Printer Voltage Too Low":(char*)"Printer Exception");
+
         set_fail_msg("print failed");
         event_ui_register(UI_RESULT_FAIL);
     }else{

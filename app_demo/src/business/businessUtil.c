@@ -474,11 +474,6 @@ PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
     OsPrnSetSpace(0,4);
     ret = OsPrnCheck();
     if( ret != RET_OK){
-        DSP_Info(ret == ERR_PRN_BUSY?(char*)"Printer Busy":
-                    ret == ERR_PRN_PAPEROUT?(char*)"Printer Paper Out":
-                    ret == ERR_PRN_OVERHEAT?(char*)"Printer Overheat":
-                    ret == ERR_PRN_OVERVOLTAGE?(char*)"Printer Overvoltage ":
-					ret == ERR_BATTERY_VOLTAGE_TOO_LOW?(char*)"Printer Voltage Too Low":(char*)"Printer Exception");
         goto exit;
     }
     for(int i = 0;i< nCount;i++){
@@ -557,11 +552,12 @@ PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
 			OsPrnPrintf((char *)"================================================");
 			
 			sprintf(FilePath,"%s/res/%s.bmp",AppPath,pTxnRec->sTrace);
-			OsLog(LOG_WARN,"bmp path： %s",FilePath);
+			OsLog(LOG_WARN,"bmp path: %s",FilePath);
 // if(pTxnRec->signatureFlag){
 // OSPRN PUTELECSIGNATABYPG ();
 			if (access(FilePath, F_OK) == 0){
 				OsPrnPutImage((unsigned char *)FilePath);
+				//
 			}else{
 				OsPrnPrintf((char *)"CARDHOLDER SIGNATURE ");
 				OsPrnPrintf((char *)" ");// 5line
@@ -591,6 +587,7 @@ PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
     OsPrnFeed(48);
 exit:
     OsPrnClose();
+	remove(FilePath);
     return ret;
 }
 

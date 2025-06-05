@@ -34,10 +34,14 @@ int setSaleJsonBody(pu8 pbody)
         if(get_transaction_data()->icc_type != INPUT_STRIPE)
         {
             if(Emv_GetPanByTag5A(tempBuffer) == 0)
+            {
+                memcpy(get_transaction_data()->sCardNo,tempBuffer,strlen(tempBuffer));
                 cJSON_AddItemToObject(jsonbody, "pan", cJSON_CreateString(tempBuffer));
+            }
 
             memset(tempBuffer,0,512);
             length = 0;
+            
             Pack_EmvData(tempBuffer,&length);
             cJSON_AddItemToObject(jsonbody, "emvdata", cJSON_CreateString(tempBuffer));
         }

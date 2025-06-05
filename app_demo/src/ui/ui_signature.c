@@ -79,7 +79,7 @@ static void button_signature_confirm(void)
         sprintf(newFilePath,"%s/res/%s.bmp",appPath,get_transaction_data()->sTrace);
         process_bmp(filePath,newFilePath,384);
         remove(filePath);
-        event_ui_register(UI_PROCESSING);
+        event_ui_register(UI_PRINTER);
     }
     else
     {   

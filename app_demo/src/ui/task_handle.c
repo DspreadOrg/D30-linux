@@ -10,7 +10,7 @@ void event_trans_handle(uint32 event_trans_id)
     switch(event_trans_id)
     {
         case EVENT_PAYMENT:
-			sale_process();
+			sale_init();
             break;
 		case EVENT_READCARD:
 			read_cards_process();

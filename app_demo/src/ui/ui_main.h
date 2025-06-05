@@ -6,6 +6,9 @@
 extern "C" {
 #endif
 
+#if 0
+#define MAIN_UI_NEW
+#endif 
 extern lv_obj_t * src_Panel;
 extern lv_obj_t * Main_Panel;
 extern lv_obj_t * statusBar_Panel;

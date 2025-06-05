@@ -65,45 +65,6 @@ static void num_key_event_cb(lv_event_t *e) {
 }
 
 static char pin[16] = {0};
-// Number key callback function
-static void show_pin_star(int pinLen) {
-    char szDisplayStart[16] = {0};
-    char start[] = "****************";
-    
-    if(pinLen <= 0){
-        lv_label_set_text(pin_lable, " ");
-    }else{
-        memcpy(szDisplayStart,start,pinLen);
-        lv_label_set_text(pin_lable, szDisplayStart);
-    }
-}
-
-void* enterpin_thread_function(void* arg) {
-    char Ksn[10] = {0};
-    char pin[16] = {0};
-
-    memset(pin,0x0,sizeof(pin));
-    int ret = OsPedGetPinBlockDukptBySoftKeyboard(1,get_transaction_data()->sCardNo, 4, 12, 120, Ksn, pin,( void*)show_pin_star);
-    OsLog(LOG_DEBUG,"OsPedGetPinBlockDukptBySoftKeyboard [%d]",ret);
-    if(ret == 0){
-        memcpy(get_transaction_data()->sPin,pin,8);
-        event_ui_register(UI_SIGNATURE);
-    }else{
-        if(ret != -1){
-            //Cancel not displaying error messages
-            set_fail_msg("enter pin failed");
-            event_ui_register(UI_RESULT_FAIL);
-        }else{
-            event_ui_register(UI_IDLE);
-        }
-    }
-    return NULL;
-}
-
-void enter_pin_process(){
-    pthread_t thread_id;
-    pthread_create(&thread_id, NULL, enterpin_thread_function, NULL);
-}
 
 void ui_create_enter_offline_pin() {
    

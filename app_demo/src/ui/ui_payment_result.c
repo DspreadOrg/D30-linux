@@ -70,8 +70,9 @@ static void touch_key_event_cb(lv_event_t * e)
                     lv_timer_del(result_timer);
                     result_timer = NULL;
                 }
-                saveRec();
-                if(get_transaction_data()->nTransType == TT_SALE ){
+                if(get_transaction_data()->nTransType == TT_SALE && get_transaction_data()->nStatus == APP_RC_COMPLETED){
+                    OsLog(LOG_DEBUG,"get_transaction_data()->nStatus [%d]", get_transaction_data()->nStatus );
+                    saveRec();
                     event_ui_register(UI_PRINTER);
                 }else{
                     event_ui_register(UI_IDLE);
@@ -103,9 +104,11 @@ static void touch_key_event_cb(lv_event_t * e)
                     lv_timer_del(result_timer);
                     result_timer = NULL;
                 }
-                saveRec();
-                if(get_transaction_data()->nTransType == TT_SALE ){
-                    event_ui_register(UI_PRINTER);
+                
+                if(get_transaction_data()->nTransType == TT_SALE && get_transaction_data()->nStatus == APP_RC_COMPLETED){
+                    OsLog(LOG_DEBUG,"get_transaction_data()->nStatus [%d]", get_transaction_data()->nStatus );
+                    saveRec();
+                    event_ui_register(UI_SIGNATURE);
                 }else{
                     event_ui_register(UI_IDLE);
                 }
@@ -232,18 +235,6 @@ void ui_create_payresult_success() {
     lv_timer_enable(true);
 }
 
-
-static void pay_process_cb(lv_timer_t *timer){
-    timer_count++;
-    if (timer_count >= 2) {
-        if (result_timer != NULL )
-        {
-            lv_timer_del(result_timer);
-            result_timer = NULL;
-        }
-        event_ui_register(UI_RESULT_SUCCESS);
-    }
-}
 void ui_create_pay_process() {
     lv_timer_enable(false);
     lv_obj_clean(Main_Panel);
@@ -262,8 +253,6 @@ void ui_create_pay_process() {
     lv_obj_set_style_text_color(tip_lable, lv_color_hex(0x1B1B1B ), 0);
     lv_obj_set_style_text_font(tip_lable, &ali_middle_24, 0);
     
-    result_timer = lv_timer_create(pay_process_cb, 500,NULL);
-	lv_timer_set_repeat_count(result_timer, 2);
     lv_timer_enable(true);
 }
 

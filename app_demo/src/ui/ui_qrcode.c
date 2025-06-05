@@ -50,18 +50,11 @@ void ui_create_qrcode() {
     lv_obj_set_style_text_color(amount_lable, lv_color_hex(0x191E3B), 0);
     lv_obj_set_style_text_font(amount_lable, &ali_middle_36, 0);
 
-
-    #if 1
     sprintf(szDisplayQrUrl,"this is a demo from Cloud Code, and the terminal will display \"Transaction Success\" after press enter.\n amount: $%ld.%02ld",nAmount/100,nAmount%100);
     lv_obj_t * ui_qrcode_pad = lv_qrcode_create(Main_Panel, 320, lv_color_hex(0x000000), lv_color_hex(0xFFFFFF));
     lv_obj_set_style_border_width(ui_qrcode_pad, 0, 0);
     lv_qrcode_update(ui_qrcode_pad, szDisplayQrUrl, strlen(szDisplayQrUrl));
     lv_obj_align(ui_qrcode_pad, LV_ALIGN_TOP_MID, 0, 200);
-    #else
-    lv_obj_t * rfid_btn = lv_img_create(Main_Panel);
-    lv_obj_align(rfid_btn, LV_ALIGN_TOP_MID, 0, 43);
-    ui_lv_img_set_src(rfid_btn, (char*)"yunma.png");
-    #endif
 
 
     lv_obj_t * tip_lable = lv_label_create(Main_Panel);

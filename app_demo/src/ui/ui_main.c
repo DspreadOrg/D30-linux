@@ -123,7 +123,7 @@ static void touch_key_event_cb(lv_event_t * e)
         keyCode = atoi(index);
         switch(keyCode){
             case 1:
-                event_trans_register(EVENT_PAYMENT);
+                sale_init();
                 break;
             case 2:
                 TranRecord_set_time_limit(0);
@@ -190,9 +190,9 @@ static void lv_event_idle_timer(struct _lv_timer_t *t)
     return;
 }
 
-void show_pin_star(int pinLen){
-    OsLog(LOG_DEBUG,"==========pinLen = %d",pinLen);
-}
+#ifdef MAIN_UI_NEW
+
+#else
 
 void lvgl_MainMenu(void)
 {
@@ -288,7 +288,7 @@ void lvgl_MainMenu(void)
     lv_obj_set_style_text_color(about_label, lv_color_white(), 0);  // White font
     lv_obj_align_to(about_label, about_img, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
-
+#endif
 static void lv_event_ad_timer(struct _lv_timer_t *t)
 {   
     lv_obj_t *temp_img = t->user_data;
@@ -492,6 +492,7 @@ int lvgl_queue_init()
 void event_ui_register(uint32 msg_id)
 {
     DSP_Debug();
+    OsLog(LOG_DEBUG, "msg_id:  %d ", msg_id);
     queue_message_body_t queMsg;
     queMsg.msgType = 1;
     queMsg.msg.msg_id = msg_id;
