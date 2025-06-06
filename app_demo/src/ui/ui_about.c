@@ -126,6 +126,22 @@ void ui_create_about() {
         lv_style_set_text_font(&span32->style, &ali_middle_24);               // Set Span Text Style
         lv_style_set_text_color(&span32->style, lv_color_hex(0x008CFF));     // Set Span text color
     }
+
+    char sVer[32] = {0};
+    sVer[0] = '\n';
+    OsGetSysVersion(0x01,&sVer[1]);
+        lv_span_t * span41 = lv_spangroup_new_span(content_label);
+    if (span41) {
+        lv_span_set_text(span41, "\n\nFirmware Version");
+        lv_style_set_text_font(&span41->style, &ali_middle_24);               // Set Span Text Style
+        lv_style_set_text_color(&span41->style, lv_color_hex(0x1B1B1B));     // Set Span text color   
+    }
+    lv_span_t * span42 = lv_spangroup_new_span(content_label);
+    if (span42) {
+        lv_span_set_text(span42, sVer);
+        lv_style_set_text_font(&span42->style, &ali_middle_24);               // Set Span Text Style
+        lv_style_set_text_color(&span42->style, lv_color_hex(0x008CFF));     // Set Span text color
+    }
     
     
     #else

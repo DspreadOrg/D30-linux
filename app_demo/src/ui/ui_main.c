@@ -154,17 +154,6 @@ static void touch_key_event_cb(lv_event_t * e)
                 event_ui_register(UI_ABOUT);
                 break;
             case KB_KEY_CANCEL:
-                mainindex = -1;
-                update_menu_state();
-                break;
-            case KB_KEY_UP:
-                key_up();
-                break;
-            case KB_KEY_DOWN:
-                key_down();
-                break;
-            case KB_KEY_ENTER:
-                key_enter();
                 break;
         }
     }
@@ -190,9 +179,7 @@ static void lv_event_idle_timer(struct _lv_timer_t *t)
     return;
 }
 
-#ifdef MAIN_UI_NEW
-
-#else
+#ifndef MAIN_UI_NEW
 
 void lvgl_MainMenu(void)
 {
@@ -643,6 +630,35 @@ void resumeStatusBarIcon(void)
     }
 }
 
+void ui_appinit()
+{
+    lv_timer_enable(false);
+    lv_obj_clean(Main_Panel);
+    lv_group_remove_all_objs(group_keypad_indev);
+    lv_obj_clear_flag(Main_Panel, LV_OBJ_FLAG_SCROLLABLE);
+    
+    lv_obj_t * result_img = lv_img_create(Main_Panel);
+    lv_obj_align(result_img, LV_ALIGN_TOP_MID, 0, 200);
+    ui_lv_img_set_src(result_img, (char*)"wait.png");
+
+    lv_obj_t * tip_lable = lv_label_create(Main_Panel);
+    lv_label_set_text(tip_lable, "App init...");
+    lv_obj_align(tip_lable, LV_ALIGN_TOP_MID, 0, 350);
+    lv_obj_set_style_text_color(tip_lable, lv_color_hex(0x1B1B1B ), 0);
+    lv_obj_set_style_text_font(tip_lable, &ali_middle_24, 0);
+   
+    lv_timer_enable(true);
+}
+
+void app_init()
+{
+    ui_appinit();
+    lv_timer_handler();
+    //You can perform some time-consuming operations during startup here
+    #if 1    //for test
+    Ped_Dukpt_Init();
+    #endif 
+}
 
 void lvgl_main()
 {
@@ -656,6 +672,7 @@ void lvgl_main()
     ui_lvgl_style_init();
     backgroundthread_init();
     showStatusBar();
+    app_init();
     lvgl_MainMenu();
     while(1)
     {

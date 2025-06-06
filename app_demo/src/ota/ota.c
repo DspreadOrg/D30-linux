@@ -112,19 +112,6 @@ static void event_cb(lv_event_t * e)
     lv_draw_label_dsc_init(&label_dsc);
     label_dsc.font = LV_FONT_DEFAULT;
 
-    char buf[20] = {0};
-    int cur_value=(int)lv_bar_get_value(obj);
-    int max_value=(int)lv_bar_get_max_value(obj);
-
-    //char strDisp[20] = {0};
-    u64 llRate = (u64)cur_value*10000/(u64)max_value;
-    u32 dwHiRate = cur_value*100/max_value;
-    u32 dwLoRate = llRate - dwHiRate*100;
-    //Sprintf_(buf, "%lu.%02d%%", dwHiRate, dwLoRate);
-
-
-    //lv_snprintf(buf, sizeof(buf), "%d/%d", cur_value,max_value);
-
     lv_point_t txt_size;
     //lv_txt_get_size(&txt_size, buf, label_dsc.font, label_dsc.letter_space, label_dsc.line_space, LV_COORD_MAX, label_dsc.flag);
 
@@ -144,8 +131,6 @@ static void event_cb(lv_event_t * e)
 
     txt_area.y1 = dsc->draw_area->y1 + (lv_area_get_height(dsc->draw_area) - txt_size.y) / 2;
     txt_area.y2 = txt_area.y1 + txt_size.y - 1;
-
-    //lv_draw_label(dsc->draw_ctx, &label_dsc, &txt_area, buf, NULL);
 }
 void ui_create_ota_check()
 {
@@ -159,13 +144,13 @@ void ui_create_ota_check()
     ui_lv_img_set_src(result_img, (char*)"wait.png");
 
     
-        tip_lable = lv_label_create(Main_Panel);
+    tip_lable = lv_label_create(Main_Panel);
     lv_label_set_text(tip_lable, "Ota checking...");
     lv_obj_align(tip_lable, LV_ALIGN_TOP_MID, 0, 350);
     lv_obj_set_style_text_color(tip_lable, lv_color_hex(0x1B1B1B ), 0);
     lv_obj_set_style_text_font(tip_lable, &ali_middle_24, 0);
    
-        percentage_lable = lv_label_create(Main_Panel);
+    percentage_lable = lv_label_create(Main_Panel);
     lv_label_set_text(percentage_lable, " ");
     lv_obj_align(percentage_lable, LV_ALIGN_TOP_MID, 0, 380);
     lv_obj_set_style_text_color(percentage_lable, lv_color_hex(0x1B1B1B ), 0);

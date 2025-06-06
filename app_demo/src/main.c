@@ -75,9 +75,7 @@ int App_nInitialization()
     DB_bInit(szAppId); //database init
     EmvL2_Init();   //EMV init
     //EmvL2_SetDefaultAidAndCapk();
-    #if 1    //for test
-    Ped_Dukpt_Init();
-    #endif 
+
 	return 0;
 }
 
