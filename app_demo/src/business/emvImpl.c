@@ -1,7 +1,7 @@
 #include "appinc.h"
 
-#define HIGH_NIBBLE(theByte)	((theByte>>4)&0x0F)	//高半字节
-#define LOW_NIBBLE(theByte)	(theByte&0x0F)			//低半字节
+#define HIGH_NIBBLE(theByte)	((theByte>>4)&0x0F)	//high half byte
+#define LOW_NIBBLE(theByte)	(theByte&0x0F)			//Low half byte
 #define PR_ARRAY_SIZE(x)	(sizeof(x)/sizeof(x[0]))
 
 #define EXP_DATE_LENGTH			4
@@ -62,7 +62,7 @@ PR_Bool GetIccCardCompany(PR_INT8* theCompany)
 	return getCardCompanyOk;
 }
 
-//多应用选择 返回值>=0 返回选择的AID序列号 -1失败
+//Multiple application selection return value>=0. Return selected AID serial number -1 failed
 int aidSelect(AidCandidate_t *pList, int listNum){
 
 	unpackAppsName(listNum,pList);
@@ -79,7 +79,6 @@ int aidSelect(AidCandidate_t *pList, int listNum){
 int confirmCardInfo(char *pan,int len){
 	OsLog(LOG_DEBUG,"confirmCardInfo [%s]",pan);
 	memcpy(get_transaction_data()->sCardNo,pan,len);
-	Emv_GetCardInfo(get_transaction_data());
     return 0;
 }
 
@@ -209,10 +208,10 @@ PR_INT32 Emv_GetCardInfo(TransactionData *pEmvTransData){
 	if (value){
 		sprintf((PR_INT8*)pEmvTransData->sCardSN, "%03d", PR_Bcd2Dec(*value));
 	}
-	//2磁道数据
+	//TRACK2 DATA
 	value = Emv_GetCoreData(EMVTAG_TRACK2, &length);
 	if (value){
-		//判断是否多了右补F
+		//Determine if there is an additional right complement F
 		PR_INT32 i;
 		PR_INT32 offset = 0;
 		for (i=0; i<length; i++){
@@ -232,12 +231,12 @@ PR_INT32 Emv_GetCardInfo(TransactionData *pEmvTransData){
 			return PR_FAILD;
 		}
 		strcpy((PR_INT8*)pEmvTransData->sTracker2, (PR_INT8*)buf);
-		// 普通磁条卡为'='；IC卡等效数据位 'D'，统一转成 '=';
+		// A regular magnetic stripe card is'='; Equivalent data bit 'D' of IC card, uniformly converted to '=';
 		if (offset > 0){
 			pEmvTransData->sTracker2[offset] = '=';
 		}
 		pEmvTransData->nTracker2Len = rawLength;
-		// 从等效2磁获取相关的数据。
+		// Obtain relevant data from equivalent 2 magnets.
 		Emv_ParseTrack2(pEmvTransData);
 		value = Emv_GetCoreData(EMVTAG_APP_EXPDATA, &length);
 		if(value)
@@ -276,6 +275,7 @@ PR_INT32 Pack_EmvData(PR_UINT8* pEmvData,PR_INT32 *pEmvDataLen)
 
 int onlineProcess(EmvOnlineData_t* pOnlineData){
 	event_ui_register(UI_PROCESSING);
+	Emv_GetCardInfo(get_transaction_data());
 	sale_online_request(pOnlineData);
     return PR_NORMAL;
 }

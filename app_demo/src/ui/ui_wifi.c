@@ -20,25 +20,16 @@ static void touch_key_event_cb(lv_event_t * e)
         switch(keyCode){
                 break;
             case KB_KEY_CANCEL://cancel
-                event_ui_register(UI_IDLE);
+                event_ui_register(UI_SETTING_NETWORK);
                 break;
         }  
     }else if (code == LV_EVENT_CLICKED){   
         keyCode = atoi(index);
         switch(keyCode){
             case 9:
-                event_ui_register(UI_IDLE);
-                break;
-            case 1:
                 event_ui_register(UI_SETTING_NETWORK);
                 break;
-            case 2:
-                event_ui_register(UI_SETTING_BACKLIGHT);
-                break;
-            case 3:
-                event_ui_register(UI_SETTING_SYSTIME);
-                break;
-            case 4:
+            case 1:
                 break;
         }
     }

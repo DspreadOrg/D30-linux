@@ -8,7 +8,7 @@ typedef struct
     char* str_content;
 } st_menu_list;
 
-static st_menu_list menu_list [] = {{"1","Auto Connect(Wifi)"},{"2","Auto Connect(4G)"},{"3","APN"},{"4","Airplane Mode"},{"5","Wifi connect"}};
+static st_menu_list menu_list [] = {{"1","APN"},{"2","Airplane Mode"},{"3","Wifi connect"}};
 static lv_obj_t* airplane_switch = NULL;
 static lv_obj_t* wifi_auto_conn_switch = NULL;
 static lv_obj_t* wl_auto_conn_switch = NULL;
@@ -48,52 +48,12 @@ static void touch_key_event_cb(lv_event_t * e)
             case 9:
                 event_ui_register(UI_SETTING);
                 break;
-            case 3:
+            case 1:
                 event_ui_register(UI_APN_SET);
                 break;
-            case 5:
+            case 3:
                 event_ui_register(UI_WIFI_SEARCH);
                 break;
-        }
-    }
-}
-
-
-static void wifi_switch_event_cb(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * sw = lv_event_get_target(e);
-    
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        bool state = lv_obj_get_state(sw) & LV_STATE_CHECKED;
-        if(state){
-            OsLog(LOG_DEBUG,"open wifi auto connect");
-            OsWifiSetAutoConnectStatus(1);
-        }
-        else
-        {
-            OsLog(LOG_DEBUG,"close wifi auto connect");
-            OsWifiSetAutoConnectStatus(0);
-            OsWifiDisconnect();
-        }
-    }
-}
-
-static void wl_switch_event_cb(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * sw = lv_event_get_target(e);
-    
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        bool state = lv_obj_get_state(sw) & LV_STATE_CHECKED;
-        if(state){
-            OsLog(LOG_DEBUG,"open 4g auto connect");
-            OsWlSetAutoConnectStatus(1);
-        }
-        else
-        {
-            OsLog(LOG_DEBUG,"close 4g auto connect");
-            OsWifiSetAutoConnectStatus(0);
         }
     }
 }
@@ -160,35 +120,9 @@ void ui_create_setting_network() {
         lv_obj_set_pos(content_label,60,40);
         lv_obj_set_style_text_font(content_label, &ali_middle_24, 0);
         lv_obj_set_style_text_align(content_label, LV_TEXT_ALIGN_LEFT, 0);
-        if (i == 0) //add switch
+        if (i == 1) //add switch
         {
-            wifi_auto_conn_switch = lv_switch_create(item_pad);
-            lv_obj_align(wifi_auto_conn_switch,LV_ALIGN_RIGHT_MID,-20,5);
-            lv_obj_set_size(wifi_auto_conn_switch,100,30);
             //todo 
-            lv_obj_add_event_cb(wifi_auto_conn_switch, wifi_switch_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-            // lv_obj_add_state(airplane_switch,LV_STATE_CHECKED);
-            if(wifi_auto == 1){
-                lv_obj_add_state(wifi_auto_conn_switch,LV_STATE_CHECKED);
-            }else{
-                lv_obj_clear_state(wifi_auto_conn_switch,LV_STATE_CHECKED);
-            }
-        }
-        else if(i == 1)
-        {
-            wl_auto_conn_switch = lv_switch_create(item_pad);
-            lv_obj_align(wl_auto_conn_switch,LV_ALIGN_RIGHT_MID,-20,5);
-            lv_obj_set_size(wl_auto_conn_switch,100,30);
-            //todo 
-            lv_obj_add_event_cb(wl_auto_conn_switch, wl_switch_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-            if(wl_auto == 1){
-                lv_obj_add_state(wl_auto_conn_switch,LV_STATE_CHECKED);
-            }else{
-                lv_obj_clear_state(wl_auto_conn_switch,LV_STATE_CHECKED);
-            }
-        }
-        else if (i == 3) //add switch
-        {
             airplane_switch = lv_switch_create(item_pad);
             lv_obj_align(airplane_switch,LV_ALIGN_RIGHT_MID,-20,5);
             lv_obj_set_size(airplane_switch,100,30);

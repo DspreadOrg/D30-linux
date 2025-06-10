@@ -2,6 +2,7 @@
 #include "appinc.h"
 
 TransactionData g_transactionData;
+extern ONLINE_STATUS onlineStatus;
 static int stop_read_cards = 0;
 
 #ifdef CFG_DBG
@@ -50,6 +51,7 @@ void KB_vReleasKey(){
 
 void clear_transaction_data(){
     memset(&g_transactionData,0x0,sizeof(TransactionData));
+    memset(&onlineStatus,0x00,sizeof(ONLINE_STATUS));
 }
 
 TransactionData* get_transaction_data(){
@@ -243,6 +245,7 @@ void* thread_function(void* arg) {
 
 void sale_init(){
     clear_transaction_data();
+
     g_transactionData.nTransType = TT_SALE;
     g_transactionData.nStatus = APP_RC_START;
     Business_GetTradeNum(g_transactionData.sTrace,sizeof(g_transactionData.sTrace));
@@ -315,11 +318,15 @@ void read_cards_process(){
                 break;
             case APP_RC_TRANS_REVERSEL:
 // Start reversal trading
-                set_fail_msg("Please execute\n a reversal transaction");
+                set_fail_msg("Execute a reversal transaction");
                 event_ui_register(UI_RESULT_FAIL);
                 break;
             default:
-                set_fail_msg(EMV_RETURN_CODE[nEmvRet]);
+                DSP_Info("onlineStatus.Rc = %d",onlineStatus.Rc);
+                if(onlineStatus.Rc == -99)
+                    set_fail_msg("Please check internet");
+                else
+                    set_fail_msg(EMV_RETURN_CODE[nEmvRet]);
                 event_ui_register(UI_RESULT_FAIL);
                 break;
         }

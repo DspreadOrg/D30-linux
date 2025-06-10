@@ -130,6 +130,7 @@ int sale_online_request(EmvOnlineData_t* pOnlineData)
     else
     {
         // setEmvResponse(pTradingFile,RC_ONLINE_DECLINE);
+        ret = RecvLen;
     }
     
 exit:    

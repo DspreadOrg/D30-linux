@@ -658,6 +658,8 @@ void app_init()
     #if 1    //for test
     Ped_Dukpt_Init();
     #endif 
+    OsWlSetAutoConnectStatus(1); //By default, wl automatic connection is enabled upon startup
+    OsWifiSetAutoConnectStatus(1);//By default, wifi automatic connection is enabled upon startup
 }
 
 void lvgl_main()
