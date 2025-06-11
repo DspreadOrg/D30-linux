@@ -706,7 +706,7 @@ void ui_create_details() {
     {
         "Txn Type",
         "Pay Type",
-        "PAN",   //后续改UNIONPAY
+        "PAN",   
         "Batch NO",
         "Trace NO",
         "DEVICE ID"

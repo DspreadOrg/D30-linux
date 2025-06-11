@@ -93,7 +93,7 @@ static void TransactionDataToWaterBrief(TransactionData* txn_data, ST_WATER_BRIE
     //amount
     sprintf(water_brief->sAmt,"$%d.%02d",int_amt/100,int_amt%100);
     //describe
-    if (strlen(txn_data->sCardNo)>4)        //卡交易
+    if (strlen(txn_data->sCardNo)>4)        //card transaction
     {
         strcat(water_brief->szTransDesc,txn_data->sCardNo+strlen(txn_data->sCardNo)-4);
         strcat(water_brief->szTransDesc,"-");
@@ -137,7 +137,7 @@ void TranRecord_ReadTradeTotal(void)
 
     record_total_num = TranRecord_GetTradeCount();
     memset(stWaterList,0x00,sizeof(stWaterList));
-    for (int i = record_total_num-1; i >= 0; i--)    //需要做倒序装载
+    for (int i = record_total_num-1; i >= 0; i--)    // Load in reverse order
     {
         memset(&data_buf,0x00,sizeof(data_buf));
         memset(&stWaterList[record_effect_num],0x00,sizeof(ST_WATER_BRIEF));

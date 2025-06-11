@@ -5,18 +5,18 @@ static lv_obj_t * pin_lable;
 static char szPin[16];
 
 
-// 检查是否为闰年
+// Check if it is a leap year
 bool is_leap_year(int year) {
     return (year % 400 == 0) || (year % 100 != 0 && year % 4 == 0);
 }
 
-// 检查月份天数是否有效
+// Check if the number of days in the month is valid
 bool is_valid_day(int year, int month, int day) {
     if (day < 1) return false;
     
     int days_in_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     
-    // 处理闰年二月
+    // Handle February in leap years
     if (month == 2 && is_leap_year(year)) {
         return day <= 29;
     }
@@ -24,21 +24,21 @@ bool is_valid_day(int year, int month, int day) {
     return month >= 1 && month <= 12 && day <= days_in_month[month-1];
 }
 
-// 检查时间格式是否为yyyyMMddHHmmss且年份≥1970
+// Check if the time format is yyyyMMddHHmmss and the year is ≥ 1970
 int set_yyyyMMddHHmmss(const char* time_str) {
-    // 检查长度是否为14
+    // Check if the length is 14
     if (strlen(time_str) != 14) {
         return -1;
     }
     
-    // 检查是否全是数字
+    // Check if all characters are digits
     for (int i = 0; i < 14; i++) {
         if (time_str[i] < '0' || time_str[i] > '9') {
             return -1;
         }
     }
     
-    // 提取各时间部分
+    // Extract each time component
     char year_str[5] = {0};
     char month_str[3] = {0};
     char day_str[3] = {0};
@@ -61,17 +61,17 @@ int set_yyyyMMddHHmmss(const char* time_str) {
     int minute = atoi(minute_str);
     int second = atoi(second_str);
     
-    // 检查年份≥1970
+    // Check if the year is ≥ 1970
     if (year < 1970) {
         return -1;
     }
     
-    // 检查日期有效性
+    // Check the validity of the date
     if (!is_valid_day(year, month, day)) {
         return -1;
     }
     
-    // 检查时间有效性
+    // Check the validity of the time
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
         return -1;
     }

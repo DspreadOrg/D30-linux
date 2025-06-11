@@ -25,13 +25,13 @@ static int Lvgl_Queue_Id = 0;
 static lv_obj_t * menu_list[4] = {0};
 static int mainindex = -1;
 
-//Current main interface dwell time
+// Current dwell time of the main interface
 static lv_timer_t * idel_timer = NULL;
 static int idleTimeStart = 0;
 static int idleIndex = 0;
 static char* stridle[4] = {"idle1.png","idle2.png","idle3.png","idle4.png"};
 
-//These two functions are only called in ui_main
+// These two functions are only called in ui_main
 extern void event_ui_handle(uint32 event_ui_id);
 extern void event_trans_handle(uint32 event_trans_id);
 
@@ -518,7 +518,7 @@ void updateStatusBarIcon(lv_timer_t * timer)
     }
 
     if(dev_sim_status){
-        //There is a SIM card available
+        // A SIM card is available
         lv_obj_clear_flag(Icon_gprs, LV_OBJ_FLAG_HIDDEN);
         if(dev_gprs_signal_lvl == 1){
             ui_lv_img_set_src(Icon_gprs, (char*)"signal_1.png");
@@ -541,7 +541,7 @@ void updateStatusBarIcon(lv_timer_t * timer)
         }
         
     }else{
-        //No SIM card
+        // No SIM card available
         lv_obj_clear_flag(Icon_gprs, LV_OBJ_FLAG_HIDDEN);//Set hidden flag=hide image
         ui_lv_img_set_src(Icon_gprs,  (char*)"sim_no.png");
         lv_obj_add_flag(Icon_ppp_status, LV_OBJ_FLAG_HIDDEN);//Set hidden flag=hide image
@@ -654,7 +654,7 @@ void app_init()
 {
     ui_appinit();
     lv_timer_handler();
-    //You can perform some time-consuming operations during startup here
+    // You can perform some time-consuming operations during startup here
     #if 1    //for test
     Ped_Dukpt_Init();
     #endif 

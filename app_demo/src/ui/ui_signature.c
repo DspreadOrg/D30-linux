@@ -10,12 +10,12 @@
 #define LCD_DISPLAY_HEIGHT      854
 #define SIGNATURE_PAD_WIDTH     460
 #define SIGNATURE_PAD_HEIGHT    400
-#define MIN_SIGNATURE_DOT       10   // 最短的笔迹长度
+#define MIN_SIGNATURE_DOT       10   // Minimum signature stroke length
 #define SIGNATURE_PAD_BG_COLOR  lv_color_hex(0xFFFFFF)
 // #define SIGNATURE_PAD_BG_COLOR  lv_color_hex(0x000000)
 
 static uint8_t *sign_pad_buffer = NULL;
-static uint32_t SignatureCount = 0;    // 用于检测笔迹长度，太短不允许提交
+static uint32_t SignatureCount = 0;    // Used to detect the signature stroke length, submissions with too short strokes are not allowed
 static lv_draw_label_dsc_t feature_label_obj = {0};
 static lv_draw_line_dsc_t sign_line_obj;
 static lv_obj_t *sign_pad_obj;
@@ -34,7 +34,7 @@ static void button_signature_confirm(void)
     #if 0
     char *szbitmap = malloc(SIGNATURE_PAD_HEIGHT*((SIGNATURE_PAD_WIDTH+7)/ 8));
 
-    // 将有颜色的部分转换成 bit map
+    // Convert the colored part to a bit map
     for(int i = 0; i < SIGNATURE_PAD_HEIGHT; i ++)
     {
         for(int j = 0; j < SIGNATURE_PAD_WIDTH; j ++)
@@ -51,15 +51,15 @@ static void button_signature_confirm(void)
     #else
     char *szbitmap = malloc(SIGNATURE_PAD_HEIGHT*((SIGNATURE_PAD_WIDTH+31)/ 32)*4);
     memset(szbitmap, 0, SIGNATURE_PAD_HEIGHT*((SIGNATURE_PAD_WIDTH+31)/ 32)*4); 
-    for (int y = SIGNATURE_PAD_HEIGHT - 1; y >= 0; y--) { // BMP 是倒序存储的
+    for (int y = SIGNATURE_PAD_HEIGHT - 1; y >= 0; y--) { // BMP stores data in reverse order
         for (int x = 0; x < SIGNATURE_PAD_WIDTH; x++) {
             uint8_t mono = 1;
-            // 获取像素颜色（16 位 RGB565）
+            // Get the pixel color (16-bit RGB565)
             lv_color_t color = lv_canvas_get_px(sign_pad_obj, x, y);
             lv_color_t co = SIGNATURE_PAD_BG_COLOR;
-            // 根据背景转换为单色（0 或 1）
+            // Convert to monochrome (0 or 1) based on the background
             if(memcmp(&color, &co, sizeof(lv_color16_t))) mono=0;
-            // 将单色像素写入行缓冲区
+            // Write the monochrome pixel to the line buffer
             szbitmap[x / 8+((SIGNATURE_PAD_HEIGHT-y-1)*((SIGNATURE_PAD_WIDTH+31)/ 32)*4)] |= (mono << (7 - (x % 8)));
         }
     }
@@ -74,7 +74,7 @@ static void button_signature_confirm(void)
 
     getcwd(appPath,sizeof(appPath));
     sprintf(filePath,"%s/res/%s_tmp.bmp",appPath,get_transaction_data()->sTrace);
-    if (0 == lv_canvas_save_as_mono_bmp(&stEsignBuf,filePath))  //todo bmp file save
+    if (0 == lv_canvas_save_as_mono_bmp(&stEsignBuf,filePath))  //todo Save BMP file
     {
         sprintf(newFilePath,"%s/res/%s.bmp",appPath,get_transaction_data()->sTrace);
         process_bmp(filePath,newFilePath,384);
@@ -158,10 +158,9 @@ static void event_signature_draw(lv_event_t * e)
 
         lv_point_t point;
         lv_indev_get_point(indev, &point);
-        // 这里需要的是相对坐标
+        // Relative coordinates are required here
         point.x = point.x - ((LCD_DISPLAY_WIDTH - SIGNATURE_PAD_WIDTH) / 2);
-        /* 这里的Y要稍微往上偏移一点，因为不是电阻屏，笔迹出现的Y轴最好是手指头的地方，防止笔迹覆盖影响体验
-        但是这个会带来一个问题，空字迹的情况下，手指从下方边缘向上方移动的时候，最开始的笔迹不会在最下方 */ 
+        /* The Y coordinate needs to be slightly offset upwards. Since it's not a resistive screen, the Y-axis of the stroke should ideally be at the finger's position to prevent the stroke from covering and affecting the experience. However, this will cause a problem: when the finger moves from the bottom edge upwards with no existing strokes, the initial stroke will not appear at the bottom. */ 
         point.y = point.y - ((LCD_DISPLAY_HEIGHT - SIGNATURE_PAD_HEIGHT) / 2); 
         lv_point_t points[2];
         /*Release or first use*/
@@ -172,7 +171,7 @@ static void event_signature_draw(lv_event_t * e)
         }
         else
         {   
-            if(SignatureCount <= 1000 && last_x != point.x && last_y != point.y )   // 实际手指有移动
+            if(SignatureCount <= 1000 && last_x != point.x && last_y != point.y )   // Actual finger movement
             {
                 SignatureCount ++;
             }

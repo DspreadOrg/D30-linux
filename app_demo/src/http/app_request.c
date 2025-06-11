@@ -13,10 +13,17 @@ static char* RC_ONLINE_DECLINE = "\x8A\x02\x30\x35";
 int setSaleJsonBody(pu8 pbody)
 {
     u32 length = 0,i = 0,tmpLen = 0;
+    int ret = 0;
     pu8 tempBuffer = NULL;
+    pu8 tempBuffer2 = NULL;
+    pu8 tempBuffer3 = NULL;
     cJSON *jsonbody = NULL;
     tempBuffer = malloc(512);
     memset(tempBuffer,0,512);
+    tempBuffer2 = malloc(512);
+    memset(tempBuffer2,0,512);
+    tempBuffer3 = malloc(512);
+    memset(tempBuffer3,0,512);
     pu8 pNode = NULL;
 
     do
@@ -27,10 +34,6 @@ int setSaleJsonBody(pu8 pbody)
            length = 0;
            break;
         }
-
-        
-
- 
         if(get_transaction_data()->icc_type != INPUT_STRIPE)
         {
             if(Emv_GetPanByTag5A(tempBuffer) == 0)
@@ -48,6 +51,21 @@ int setSaleJsonBody(pu8 pbody)
         else
         {
             cJSON_AddItemToObject(jsonbody, "pan", cJSON_CreateString(get_transaction_data()->sCardNo));
+
+            //encrypt track2    
+            memset(tempBuffer,0,512);
+            memset(tempBuffer2,0,512);
+            memset(tempBuffer3,0,512);
+            ret = DataEncrypt(PED_TRK_IPEK_INDEX,get_transaction_data()->sTracker2,get_transaction_data()->nTracker2Len,tempBuffer,tempBuffer2);
+            if(ret)
+            {
+                tmpLen = nBcd2Asc(tempBuffer,ret*2,tempBuffer3,0);
+                cJSON_AddItemToObject(jsonbody, "enTrack2", cJSON_CreateString(tempBuffer3));
+                memset(tempBuffer3,0,512);
+                tmpLen = nBcd2Asc(tempBuffer2,20,tempBuffer3,0);
+                cJSON_AddItemToObject(jsonbody, "trkKsn", cJSON_CreateString(tempBuffer3));
+            }
+            
         }
 
         memset(tempBuffer,0,512);
@@ -58,7 +76,7 @@ int setSaleJsonBody(pu8 pbody)
             memset(tempBuffer,0,512);
             tmpLen = nBcd2Asc(get_transaction_data()->sPinKsn,20, tempBuffer,0);
             cJSON_AddItemToObject(jsonbody, "pinksn", cJSON_CreateString(tempBuffer));
-        }
+        }        
 
         memcpy(pbody,cJSON_Print(jsonbody),strlen(cJSON_Print(jsonbody)));
         length = strlen(pbody);
@@ -77,6 +95,8 @@ int setSaleJsonBody(pu8 pbody)
     free(tempBuffer);
     tempBuffer = NULL;
    }
+   free(tempBuffer2);
+   free(tempBuffer3);
     return length;
 }
 

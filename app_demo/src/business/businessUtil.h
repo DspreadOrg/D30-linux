@@ -15,7 +15,7 @@ extern "C"
 #define PARAM_TRADE_NUM          (char*)"trace_num" 
 #define PARAM_BATCH_NUM          (char*)"batch_num" 
 #define PARAM_EMV_TSC          (char*)"emv_tsc" 
-#define PARAM_EMV_READCARD_FLAG    (char*)"emv_readcard_flag"    //1注册回调到emv由emv回调读卡接口  0有外部检卡，外部检卡完成后将类型传入emv
+#define PARAM_EMV_READCARD_FLAG    (char*)"emv_readcard_flag"    // 1: Register a callback to EMV, and EMV will callback the card reading interface; 0: External card detection, and the card type will be passed to EMV after the detection is completed.
 
 // Write a record
 PR_INT32 TranRecord_WriteAndUpdateTradeRec(TransactionData *pTransactionRec);

@@ -38,6 +38,43 @@ const PR_INT8 s_RidList[][RID_LENGTH] = {
     {0xA0, 0x00, 0x00, 0x00, 0x25},
 };
 
+typedef enum
+{
+	DUKPT_DEC_ECB = 0x00,
+	DUKPT_ENC_ECB = 0x01,
+    DUKPT_DEC_CBC = 0x02,
+	DUKPT_ENC_CBC = 0x03,
+} DUKPT_DES_MODE;
+
+int DataEncrypt(int keyIndex,unsigned char *inData,int inDataLen,unsigned char *outData,unsigned char *ksn)
+{
+	/*update ksn*/
+    OsPedIncreaseKsnDukpt(keyIndex);
+
+	    int ret = -1;
+    int reLen =  (inDataLen+7)/8*8;
+
+    unsigned char *tempBuf = NULL;
+    tempBuf = malloc(reLen+1);
+    memset(tempBuf,0,reLen+1);
+    memcpy(tempBuf,inData,inDataLen);
+
+    ret = OsPedOpen();
+    if(ret != RET_OK){
+        OsLog(LOG_DEBUG,"Dspread: -----------------%s-----%d   ret= %d",__FUNCTION__,__LINE__,ret);
+        return 0;
+    }
+
+    ret = OsPedDesDukpt(keyIndex,0x01,NULL, reLen, tempBuf, outData, ksn,DUKPT_ENC_CBC);
+    if(ret != RET_OK){
+        OsPedClose();
+        return 0;
+    } 
+
+    OsPedClose();   
+    return reLen;
+}
+
 PR_Bool GetIccCardCompany(PR_INT8* theCompany)
 {
 	PR_UINT8* rid = 0;
@@ -136,14 +173,13 @@ int inputPasswd(int type, char *pszPin){
 			OsCloseSoftKeyboard ();
 			return PR_FAILD;
 		}
-		ret = OsPedGetPinBlockDukptBySoftKeyboard(PED_PIN_IPEK_INDEX,get_transaction_data()->sCardNo, 4, 6, 60*1000,pinKsn, pszPin,disp_mask_pin);
+		ret = OsPedGetPinBlockDukptBySoftKeyboard(PED_PIN_IPEK_INDEX,get_transaction_data()->sCardNo, 4, 6, 60*1000,get_transaction_data()->sPinKsn, pszPin,disp_mask_pin);
 		OsLog(LOG_DEBUG,"--------OsPedGetPinBlockDukptBySoftKeyboard ret = %d",ret);
 		OsCloseSoftKeyboard ();
 		if(ret == RET_OK)
 		{
 			get_transaction_data()->emv_emter_online_pin_result = 1;
 			memcpy(get_transaction_data()->sPin,pszPin,8);
-			memcpy(get_transaction_data()->sPinKsn,pinKsn,strlen(pinKsn));
 		}
 	}
 	else
@@ -450,18 +486,16 @@ int pin_require_check( )
 {
 	uint i=0x0;
 	unsigned char serviceCode[8] = {0};
+	OsLog(LOG_DEBUG,"stracker2: \r\n %s",get_transaction_data()->sTracker2);
 	while(get_transaction_data()->sTracker2[i] != 0x3d){
  		i++;
 	}
 	i += 5;
 	if(i + 3 <= get_transaction_data()->nTracker2Len){
 		memcpy(serviceCode,&get_transaction_data()->sTracker2[i],3);
-		if(serviceCode[0] == 0x31 || serviceCode[0] == 0x35 || serviceCode[0] == 0x37 || serviceCode[0] == 0x39)
+		if(serviceCode[2] == '0' || serviceCode[2] == '6')
 		{
-			if(serviceCode[2] == 0x30 || serviceCode[2] == 0x33 || serviceCode[2] == 0x35 || serviceCode[2] == 0x36 || serviceCode[2] == 0x37)
-			{
-				return 1;
-			}
+			return 1;
 		}
 	}
 	

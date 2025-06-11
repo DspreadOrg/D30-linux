@@ -91,7 +91,7 @@ PR_INT32 ped_write_ipek(PR_UINT8 SrcKeyType,PR_UINT8 SrcKeyIdx,PR_UINT8 DstKeyTy
     //DstKeyIdx：
     tmep[offset] = DstKeyIdx;
     offset += 1;
-    //7 bytes 保留域，随机数
+    //7 bytes Reserved field, random number
     offset += 7;
     //DstKeyType
     tmep[offset] = DstKeyType;
@@ -116,7 +116,7 @@ PR_INT32 ped_write_ipek(PR_UINT8 SrcKeyType,PR_UINT8 SrcKeyIdx,PR_UINT8 DstKeyTy
         memcpy(tmep+offset,pKcv,kcvLen);
     }
     offset += 8;
-    //填充随机数 
+    // Fill in random numbers 
     if(pKsn != NULL){
         memcpy(tmep+offset,pKsn,10);
     }
@@ -185,7 +185,7 @@ int packWriteKeyBuf(uchar SrcKeyType,uchar SrcKeyIdx,uchar DstKeyType,uchar DstK
     //DstKeyIdx：
     tmep[offset] = DstKeyIdx;
     offset += 1;
-    //7 bytes 保留域，随机数
+    //7 bytes Reserved field, random number
     offset += 7;
     //DstKeyType
     tmep[offset] = DstKeyType;
@@ -210,7 +210,7 @@ int packWriteKeyBuf(uchar SrcKeyType,uchar SrcKeyIdx,uchar DstKeyType,uchar DstK
         memcpy(tmep+offset,pKcv,kcvLen);
     }
     offset += kcvLen;
-    //填充随机数 
+    // Fill in random numbers 
     if(pKsn != NULL){
         memcpy(tmep+offset,pKsn,10);
     }
@@ -249,19 +249,19 @@ void pinpadDupktTest1(){
 
     ret = OsPedOpen();
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"OsPedOpen失败 \n");
+        OsLog(LOG_DEBUG,"Failed to open password keyboard \n");
         return;
     }
     ret = OsPedGetVer(tmep);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"OsPedGetVer失败  [%d]\n",ret);
+        OsLog(LOG_DEBUG,"Failed to get password keyboard version [%d]\n",ret);
         goto EXIT;
     }
-    OsLog(LOG_DEBUG,"密码键盘版本 %s \n",tmep);
+    OsLog(LOG_DEBUG,"Password keyboard version %s \n",tmep);
 
     ret = OsPedEraseKeys();
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"OsPedEraseKeys失败 \n");
+        OsLog(LOG_DEBUG,"Failed to erase keys \n");
         goto EXIT;
     }
   
@@ -269,82 +269,82 @@ void pinpadDupktTest1(){
     offset = packWriteKeyBuf(PED_TLK,0,PED_TIK,2,ipek,16,NULL,0,initKsn,tmep);
     ret = OsPedWriteTIK(tmep);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"PED_TIK 写入失败 \n");
+        OsLog(LOG_DEBUG,"Failed to write PED_TIK \n");
         goto EXIT;
     }
-    OsLog(LOG_DEBUG,"PED_TIK 2 写入成功 \n");  
+    OsLog(LOG_DEBUG,"Successfully wrote PED_TIK 2 \n");  
 
     memset(tmep,0x0,sizeof(tmep));
     offset = packWriteKeyBuf(PED_TLK,0,PED_TIK,1,ipek,16,NULL,0,initKsn,tmep);
     ret = OsPedWriteTIK(tmep);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"PED_TIK 写入失败 \n");
+        OsLog(LOG_DEBUG,"Failed to write PED_TIK \n");
         goto EXIT;
     }
-    OsLog(LOG_DEBUG,"PED_TIK 1 写入成功 \n");  
+    OsLog(LOG_DEBUG,"Successfully wrote PED_TIK 1 \n");  
 
     memset(tmep,0x0,sizeof(tmep));
     offset = packWriteKeyBuf(PED_TLK,0,PED_TIK,3,ipek,16,NULL,0,initKsn,tmep);
     ret = OsPedWriteTIK(tmep);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"PED_TIK 写入失败 \n");
+        OsLog(LOG_DEBUG,"Failed to write PED_TIK \n");
         goto EXIT;
     }
-    OsLog(LOG_DEBUG,"PED_TIK 3 写入成功 \n");  
+    OsLog(LOG_DEBUG,"Successfully wrote PED_TIK 3 \n");  
 
     ret = OsPedIncreaseKsnDukpt(2);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"OsPedIncreaseKsnDukpt 失败 \n");
+        OsLog(LOG_DEBUG,"Failed to increment KSN in DUKPT mode \n");
         goto EXIT;
     }  
-    OsLog(LOG_DEBUG,"OsPedIncreaseKsnDukpt 成功 \n");
+    OsLog(LOG_DEBUG,"Successfully incremented KSN in DUKPT mode \n");
 
     ret = OsPedGetKsnDukpt(2,ksn);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"OsPedGetKsnDukpt 失败 \n");
+        OsLog(LOG_DEBUG,"Failed to get KSN in DUKPT mode \n");
         goto EXIT;
     } 
-    dumpBytes("加1后的ksn",ksn,10);
+    dumpBytes("KSN after incrementing by 1",ksn,10);
 
     memset(ksn,0x0,sizeof(ksn));
     ret = OsPedDesDukpt(2,0x01,NULL, 16, data, enc, ksn,0x03);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"OsPedDesDukpt 加密失败 \n");
+        OsLog(LOG_DEBUG,"Failed to encrypt data in DUKPT mode \n");
         goto EXIT;
     }
-    dumpBytes("当前ksn",ksn,10);
-    dumpBytes("加密数据",enc,16);
+    dumpBytes("Current KSN",ksn,10);
+    dumpBytes("Encrypted data",enc,16);
 
     memset(ksn,0x0,sizeof(ksn));
     ret = OsPedDesDukpt(2,0x01,NULL, 16, enc, dnc, ksn,0x02);
     if(ret != RET_OK){
-        OsLog(LOG_DEBUG,"OsPedDesDukpt 解密失败 \n");
+        OsLog(LOG_DEBUG,"Failed to decrypt data in DUKPT mode \n");
         goto EXIT;
     }
-    dumpBytes("当前ksn",ksn,10);
-    dumpBytes("解密数据",dnc,16);
+    dumpBytes("Current KSN",ksn,10);
+    dumpBytes("Decrypted data",dnc,16);
 
-    // //mac计算
+    // // MAC calculation
     // memset(ksn,0x0,sizeof(ksn));
     // ret = OsPedGetMacDukpt(1, tik, 16, mac, ksn,0x23);
     // if(ret != RET_OK){
-    //     printf("OsPedGetMac 失败 \n");
+    //     printf("Failed to calculate MAC \n");
     //     goto EXIT;
     // }
-    // dumpBytes("当前ksn",ksn,10);
+    // dumpBytes("Current KSN",ksn,10);
     // dumpBytes("Mac结果",mac,8);
 
     // memset(ksn,0x0,sizeof(ksn));
     // ret = OsPedGetPinDukpt(1,(unsigned char *)"6228480068726674572", (char *)"0,4,6,12", 0x20, 30*1000, ksn,PinBlock);
     // if(ret != RET_OK){
-    //     printf("OsPedGetPinBlock 失败 \n");
+    //     printf("Failed to get PIN block \n");
     //     goto EXIT;
     // }
-    // dumpBytes("加密密码",PinBlock,8);
-    // dumpBytes("当前ksn",ksn,10);
-    // printf("OsPedGetPinBlock 结束 \n");    
+    // dumpBytes("Encrypted password",PinBlock,8);
+    // dumpBytes("Current KSN",ksn,10);
+    // printf("Finished getting PIN block \n");    
 EXIT:
-    OsLog(LOG_DEBUG,"关闭密码键盘 \n");
+    OsLog(LOG_DEBUG,"Closing password keyboard \n");
     OsPedClose();
 }
 
@@ -382,19 +382,19 @@ void pinpadMKSKTest(){
 
     ret = OsPedOpen();
     if(ret != RET_OK){
-        printf("OsPedOpen失败 \n");
+        printf("Failed to open password keyboard \n");
         return;
     }
     ret = OsPedGetVer(tmep);
     if(ret != RET_OK){
-        printf("OsPedGetVer失败  [%d]\n",ret);
+        printf("Failed to get password keyboard version [%d]\n",ret);
         goto EXIT;
     }
-    printf("密码键盘版本 %s \n",tmep);
+    printf("Password keyboard version %s \n",tmep);
 
     ret = OsPedEraseKeys();
     if(ret != RET_OK){
-        printf("OsPedEraseKeys失败 \n");
+        printf("Failed to erase keys \n");
         goto EXIT;
     }
     //写入TLK
@@ -402,10 +402,10 @@ void pinpadMKSKTest(){
     offset = packWriteKeyBuf(PED_TLK,0,PED_TLK,1,tlk,16,NULL,0,NULL,tmep);
     ret = OsPedWriteKey(tmep);
     if(ret != RET_OK){
-        printf("PED_TLK 写入失败 \n");
+        printf("Failed to write PED_TLK \n");
         goto EXIT;
     }
-    printf("PED_TLK 写入成功 \n");
+    printf("Successfully wrote PED_TLK \n");
 
 
     memset(tmep,0x0,sizeof(tmep));
@@ -415,66 +415,66 @@ void pinpadMKSKTest(){
     offset = packWriteKeyBuf(PED_TLK,0,PED_TMK,1,mk_plaintext,16,NULL,0,NULL,tmep);
     ret = OsPedWriteKey(tmep);
     if(ret != RET_OK){
-        printf("PED_TMK 写入失败 \n");
+        printf("Failed to write PED_TMK \n");
         goto EXIT;
     }
-    printf("PED_TMK 写入成功 \n");    
+    printf("Successfully wrote PED_TMK \n");    
 
     memset(tmep,0x0,sizeof(tmep));
     offset = packWriteKeyBuf(PED_TMK,1,PED_TPK,1,tpk,16,tpkCkv,8,NULL,tmep);
     ret = OsPedWriteKey(tmep);
     if(ret != RET_OK){
-        printf("PED_TPK 写入失败 \n");
+        printf("Failed to write PED_TPK \n");
         goto EXIT;
     }
-    printf("PED_TPK 写入成功 \n"); 
+    printf("Successfully wrote PED_TPK \n"); 
 
     memset(tmep,0x0,sizeof(tmep));
     offset = packWriteKeyBuf(PED_TMK,1,PED_TDK,1,tdk,16,tdkCkv,8,NULL,tmep);
     ret = OsPedWriteKey(tmep);
     if(ret != RET_OK){
-        printf("PED_TDK 写入失败 \n");
+        printf("Failed to write PED_TDK \n");
         goto EXIT;
     }
-    printf("PED_TDK 写入成功 \n"); 
+    printf("Successfully wrote PED_TDK \n"); 
 
     memset(tmep,0x0,sizeof(tmep));
     offset = packWriteKeyBuf(PED_TMK,1,PED_TAK,1,tak,8,takCkv,8,NULL,tmep);
     ret = OsPedWriteKey(tmep);
     if(ret != RET_OK){
-        printf("PED_TAK 写入失败 \n");
+        printf("Failed to write PED_TAK \n");
         goto EXIT;
     }
-    printf("PED_TAK 写入成功 \n");
+    printf("Successfully wrote PED_TAK \n");
 
-    //mac计算
+    // MAC calculation
     ret = OsPedGetMac(1, tak, 16, mac, 0x02);
     if(ret != RET_OK){
-        printf("OsPedGetMac 失败 \n");
+        printf("Failed to calculate MAC \n");
         goto EXIT;
     }
     dumpBytes("Mac结果",mac,8);
-    printf("Mac计算成功 \n");
+    printf("Successfully calculated MAC \n");
 
     ret = OsPedDes(1,NULL, tak, 16, enc, 1);
     if(ret != RET_OK){
-        printf("OsPedDes 加密失败 \n");
+        printf("Failed to encrypt data \n");
         goto EXIT;
     }
-    dumpBytes("加密数据",enc,16);
-    printf("加密数据成功 \n");
+    dumpBytes("Encrypted data",enc,16);
+    printf("Successfully encrypted data \n");
 
     ret = OsPedDes(1,NULL, enc, 16, dnc, 0);
     if(ret != RET_OK){
-        printf("OsPedDes 解密失败 \n");
+        printf("Failed to decrypt data \n");
         goto EXIT;
     }
-    dumpBytes("解密数据",dnc,16);
-    printf("解密数据成功 \n");
+    dumpBytes("Decrypted data",dnc,16);
+    printf("Successfully decrypted data \n");
 
     ret = OsPedGetKcv(PED_TDK,1,0,8,kcvData,kcv);
     if(ret != RET_OK){
-        printf("OsPedGetKcv 失败 \n");
+        printf("Failed to get KCV \n");
         goto EXIT;
     }
     #if 0
@@ -489,13 +489,13 @@ void pinpadMKSKTest(){
     Disp_vClearPort();
 	Disp_vShowStr(2,EM_DTYPE_NORMAL,EM_ALIGN_CENTER,(char*)"输密完成");
     if(ret != RET_OK){
-        printf("OsPedGetPinBlock 失败 \n");
+        printf("Failed to get PIN block \n");
         goto EXIT;
     }
-    printf("OsPedGetPinBlock 结束 \n");
-    dumpBytes("加密密码",PinBlock,8);
+    printf("Finished getting PIN block \n");
+    dumpBytes("Encrypted password",PinBlock,8);
     #endif
 EXIT:
-    printf("关闭密码键盘 \n");
+    printf("Closing password keyboard \n");
     OsPedClose();
 }

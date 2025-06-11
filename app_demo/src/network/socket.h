@@ -34,22 +34,22 @@ typedef enum __SOCKET_ERR_STEP_ENUM {
 }SOCKET_ERR_STEP_ENUM;				/* ----------  end of enum SOCKET_ERR_STEP_ENUM  ---------- */
 
 typedef struct __socket_parameters_t {
-	int  custno;								//当前商户编号
-	char standby_flag;							//是否使用备用域名ip标识
+	int  custno;								// Current merchant number
+	char standby_flag;							// Flag indicating whether to use the backup domain name or IP
     char host[256];
-    char ip[256];                               /* IP、域名 */
-    int  port;                                  /* 端口 */
-    int  ssl_flag;                              /* 是否启动SSL */
-	int  union_https_flag;						//直连银联公网标识
-	int  normal_http_flag;						//普通http报文头处理
-    int  connect_time;                          /* 连接超时时间，单位秒,默认30s */
-	int  connect_time_us;                       /* 连接超时时间，单位微秒,默认0s */
-    int  recv_time;                             /* 接收超时时间，单位秒,默认30s */
-	int  recv_time_us;                          /* 接收超时时间，单位微秒,默认0s */
-    int  is_show_title;                         /* 是否显示倒计时 //0前台、1后台、2不显示标识*/
+    char ip[256];                               /* IP address or domain name */
+    int  port;                                  /* Port number */
+    int  ssl_flag;                              /* Flag indicating whether to enable SSL */
+	int  union_https_flag;						// Flag indicating direct connection to UnionPay public network
+	int  normal_http_flag;						// Ordinary HTTP header processing
+    int  connect_time;                          /* Connection timeout in seconds, default is 30s */
+	int  connect_time_us;                       /* Connection timeout in microseconds, default is 0s */
+    int  recv_time;                             /* Receive timeout in seconds, default is 30s */
+	int  recv_time_us;                          /* Receive timeout in microseconds, default is 0s */
+    int  is_show_title;                         /* Flag indicating whether to show the countdown // 0: foreground, 1: background, 2: do not show*/
     int  sendlen;
     char *sendbuf;
-	int socket_id;								//返回的预拨号的socket id
+	int socket_id;								//socket id
 	SSL_CTX *ctx;								
 	SSL *ssl;
 }socket_parameters_t;				/* ----------  end of struct socket_parameters_t  ---------- */
