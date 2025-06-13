@@ -375,7 +375,7 @@ s32 RequestHttpTransmit(char * pSend,u32 SendLen, char * pURL,u32 port, char * p
     HttpUrlGetScheme(pURL, pScheme, 128);
     HttpUrlGetHost(pURL, pHost, 64);
 
-    if( ssl_server_connect(pHost,port,ONLINE_REQUEST_TIMEOUT) != RC_SUCCESS)
+    if( ssl_server_connect(pHost,port,ONLINE_REQUEST_TIMEOUT,SSL_VERIFY_NONE) != RC_SUCCESS)
     {
         ret = -99;
         if(pScheme!=NULL)

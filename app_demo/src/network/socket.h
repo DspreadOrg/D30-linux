@@ -74,7 +74,7 @@ int socket_tcp_dialoff (socket_parameters_t *parameters);
 int socket_tcp_ssl (socket_parameters_t *parameters, int recvlen,char *outbuf);
 int socket_conversion_parameters (socket_parameters_t *parameters, struct sockaddr_in *addr);
 
-s32 ssl_server_connect(char * pHost,ssize_t port,int timeout);
+s32 ssl_server_connect(char * pHost,ssize_t port,int timeout,int mode);
 s32 ssl_send_msg(char * pData, ssize_t DataLength, int timeout);
 s32 ssl_recv_msg(char * outbuf, ssize_t recvlen, int timeout);
 void ssl_server_disconnect();

@@ -38,7 +38,7 @@ typedef enum
 
 typedef struct _LarkTmsCallBack_t
 {	
-    s32 (*ssl_connect)(char * pHost,ssize_t port,int timeout);
+    s32 (*ssl_connect)(char * pHost,ssize_t port,int timeout,int mode);
     void (*ssl_disconnect)();
     s32 (*ssl_send)(char *  pData, ssize_t DataLength, int Timeout );
     s32 (*ssl_recv)(char * recvBuf, ssize_t recvlen, int timeout);
