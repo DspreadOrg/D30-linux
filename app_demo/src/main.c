@@ -79,6 +79,33 @@ int App_nInitialization()
 	return 0;
 }
 
+#include "memtrack.h"
+
+void test_function(void) {
+    // This will leak memory.
+    char* leak = trackmalloc(100);
+    sprintf(leak, "This memory will be leaked");
+    
+    // This will not leak memory.
+    char* no_leak = trackmalloc(50);
+    sprintf(no_leak, "This memory will be freed");
+    trackfree(no_leak);
+}
+
+void test()
+{
+    memtrack_init();
+
+    int* array = trackmalloc(10 * sizeof(int));
+    for (int i = 0; i < 10; i++) {
+        array[i] = i * 10;
+    }
+    test_function();
+    trackfree(array);
+
+    memtrack_cleanup();
+}
+
 int main(int argc, char *argv[])
 {
     int ret;
