@@ -252,6 +252,11 @@ LV_FONT_DECLARE(ali_middle_42)
 LV_FONT_DECLARE(ali_bold_14)
 LV_FONT_DECLARE(ali_bold_20)
 
+LV_FONT_DECLARE(lv_font_arial_14)
+LV_FONT_DECLARE(lv_font_arial_16)
+LV_FONT_DECLARE(lv_font_arial_24)
+LV_FONT_DECLARE(lv_font_arial_36)
+LV_FONT_DECLARE(lv_font_arial_48)
 #endif
 
 /**

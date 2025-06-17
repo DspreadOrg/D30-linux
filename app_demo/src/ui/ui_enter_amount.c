@@ -80,10 +80,10 @@ static void num_key_event_cb(lv_event_t *e) {
         }
     }
     nAmount = atol(amount_str);
-    sprintf(szDisplayAmount,"$%ld.%02ld",nAmount/100,nAmount%100);
+    sprintf(szDisplayAmount,"₹%ld.%02ld",nAmount/100,nAmount%100);
     lv_label_set_text(amount, szDisplayAmount);
     memset(szDisplayAmount,0x0,sizeof(szDisplayAmount));
-    sprintf(szDisplayAmount,"+$0.00 tax = $%ld.%02ld ",nAmount/100,nAmount%100);
+    sprintf(szDisplayAmount,"+₹0.00 tax = ₹%ld.%02ld ",nAmount/100,nAmount%100);
     lv_label_set_text(tax, szDisplayAmount);
 }
 
@@ -195,8 +195,8 @@ void ui_create_enter_amount() {
     // 4. Add large amount display
     amount = lv_label_create(Main_Panel);
     lv_obj_align(amount, LV_ALIGN_TOP_MID, 0, 160);
-    lv_label_set_text(amount, "$0.00");
-    lv_obj_set_style_text_font(amount, &lv_font_montserrat_48, 0);
+    lv_label_set_text(amount, "₹0.00");
+    lv_obj_set_style_text_font(amount, &lv_font_arial_48, 0);
 
     // 5. Add a horizontal line (achieved through an object with a height of 1px)
     lv_obj_t * line = lv_obj_create(Main_Panel);
@@ -208,8 +208,8 @@ void ui_create_enter_amount() {
      // 6. Add tax display
      tax = lv_label_create(Main_Panel);
      lv_obj_align(tax, LV_ALIGN_TOP_MID, 0, 230);
-     lv_label_set_text(tax, "+$0.00 tax = $0.00");
-     lv_obj_set_style_text_font(tax, &ali_middle_24, 0);
+     lv_label_set_text(tax, "+₹0.00 tax = ₹0.00");
+     lv_obj_set_style_text_font(tax, &lv_font_arial_24, 0);
      lv_obj_set_style_text_color(tax, lv_palette_main(LV_PALETTE_GREY), 0);
 
     create_numpad(Main_Panel);
