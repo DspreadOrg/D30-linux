@@ -145,8 +145,6 @@ int OsGetAppInfoByAppid(char* appid,ST_APP_INFO *pInfo);
  * Return None
  */
 void OsBeep(int ToneType, int DurationMs);
-
-void OsPlayAudio(char* filePath);
 /*
  * Function Sets the switch and duty cycle of the key tone.
  * parameter
@@ -427,10 +425,23 @@ int OsEmvRSAPublicDecrypt(unsigned char *N, int NLen,unsigned char *E, int ELen,
  */
 int OsRSAKeyGen(unsigned char *Modulus, unsigned char *PriExp, int ModulusLen, const unsigned char * PubExp);
 
-/*
- * 7LCD
- */
+/***************************************6 MediaAudio******************************/
+// start play audio
+int OsPlayAudio(char* filePath);
 
+// stop play
+int OsStopPlayAudio();
+
+// Get playback status 1, play other values, do not play
+int OsGetAudioPlayStatus();
+
+// Get volume 
+int OsGetAudioVolume();
+
+// Set the volume range to 0~10
+int OsSetAudioVolume(int volume);
+
+/************************************7LCD*********************************/
 /*
  * Function Set screen brightness.
  * Parameter Brightness Brightness value, value range is [0~10], 0: Turn off the backlight.10: The brightest.
@@ -1690,11 +1701,17 @@ int OsWlLogout(void);
 
 // TODO Added Interface
 // Get the sim card status
+int OsWlSelSimSlot(int slot);
+//Get the currently used card slot
+int OsWlGetSimSlot();
+//get sim status
 int OsWlGetSimStatus(int* simStatus);
 // Get the operator
 int OsWlGetSimOperator(char* simOperator);
 // Get IMEI
 int OsWlGetImei(char* Imei);
+// Obtain the IMEI of the specified card slot
+int OsWlGetImeiBySlot(int slot,char* Imei);
 // Get Imsi
 int OsWlGetImsi(char* Imsi);
 // Get Iccid
@@ -2434,6 +2451,10 @@ int OsOpenCamera(int type);
 void OsCloseCamera();
 
 int OsReadScanResult(char* pContent,int inLen);
+//open the camera flash
+int OsOpenFlashLight();
+//close the camera flash
+int OsCloseFlashLight();
 
 /*
  * Lvgl
