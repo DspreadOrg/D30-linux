@@ -2,6 +2,7 @@
 
 static lv_obj_t * pin_lable;
 static char szPin[16];
+static char szMaskPin[16] = {0};
 
 static void touch_key_event_cb(lv_event_t * e)
 {
@@ -26,7 +27,8 @@ static void touch_key_event_cb(lv_event_t * e)
         keyCode = atoi(index);
         switch(keyCode){
             case 9:
-                get_transaction_data()->emv_enter_offline_pin_result = -1;
+                OsCloseSoftKeyboard ();  // for online pin cancel
+                get_transaction_data()->emv_enter_offline_pin_result = -1; // for offline pin cancel
                 break;
             case 1:
                 if(strlen(szPin) >= 4){
@@ -103,7 +105,7 @@ void ui_create_enter_offline_pin() {
 
     lv_obj_t * line = lv_obj_create(Main_Panel);
     lv_obj_set_size(line, 300, 2); 
-    lv_obj_align(line, LV_ALIGN_TOP_MID, 0, 240);
+    lv_obj_align(line, LV_ALIGN_TOP_MID, 0, 220);
     lv_obj_set_style_bg_color(line, lv_palette_main(LV_PALETTE_GREY), 0);
     lv_obj_clear_flag(line, LV_OBJ_FLAG_SCROLLABLE);
 
@@ -111,16 +113,36 @@ void ui_create_enter_offline_pin() {
  
     lv_timer_enable(true);
 }
-void disp_mask_pin(int pinLen)
+void input_pin_callback(int pinLen)
 {
-    char szDisplayStart[16] = {0};
     char start[] = "****************";
     
-    if(pinLen <= 0){
+    if(pinLen > 0)
+    {
+        memset(szMaskPin,0,sizeof(szMaskPin));
+        memcpy(szMaskPin,start,pinLen);   
+    }
+    else
+    {
+        memset(szMaskPin,0,sizeof(szMaskPin));
+    }
+    event_ui_register(UI_DISP_MASK_PIN);
+}
+
+void clear_mask_pin()
+{
+    memset(szMaskPin,0,sizeof(szMaskPin));
+}
+
+void disp_mask_pin()
+{
+    if(strlen(szMaskPin) > 0)
+    {
+        lv_label_set_text(pin_lable, szMaskPin);
+    }
+    else
+    {
         lv_label_set_text(pin_lable, " ");
-    }else{
-        memcpy(szDisplayStart,start,pinLen);
-        lv_label_set_text(pin_lable, szDisplayStart);
     }
 }
 
@@ -147,7 +169,7 @@ void ui_create_enter_online_pin()
     lv_obj_set_style_text_font(amount_lable, &ali_middle_36, 0);
 
     lv_obj_t * tip_lable = lv_label_create(Main_Panel);
-    lv_label_set_text(tip_lable, "Enter youe PIN code");
+    lv_label_set_text(tip_lable, "Enter your PIN code");
     lv_obj_align(tip_lable, LV_ALIGN_TOP_MID, 0, 130);
     lv_obj_set_style_text_color(tip_lable, lv_color_hex(0x1B1B1B), 0);
     lv_obj_set_style_text_font(tip_lable, &ali_middle_24, 0);
@@ -161,7 +183,7 @@ void ui_create_enter_online_pin()
 
     lv_obj_t * line = lv_obj_create(Main_Panel);
     lv_obj_set_size(line, 300, 2); 
-    lv_obj_align(line, LV_ALIGN_TOP_MID, 0, 240);
+    lv_obj_align(line, LV_ALIGN_TOP_MID, 0, 220);
     lv_obj_set_style_bg_color(line, lv_palette_main(LV_PALETTE_GREY), 0);
     lv_obj_clear_flag(line, LV_OBJ_FLAG_SCROLLABLE);
 

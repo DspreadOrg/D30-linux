@@ -28,7 +28,7 @@ extern "C"
  * |   Macros
  * +----------------------------------------------------------------------------
  */
-#define APP_VERSION "V1.0.0"
+#define APP_VERSION "V1.0.2"
 
 #if 1
 #define CFG_DBG 
@@ -485,6 +485,11 @@ typedef struct{u8 *head; u32 len;} T_U8_VIEW;
  * +----------------------------------------------------------------------------
  */
 
+extern u32 get_tlv_value(pu8 pool,u32 T,pu8 V );
+extern void set_tlv_view(u8 *pTlvBuf, u32 dwTag, T_U8_VIEW uvVal);
+extern T_U8_VIEW get_tlv_view(u8 *pTlvBuf, u32 dwTag);
+extern int _asc_2_bcd(unsigned char * ascstr, int asclen, unsigned char * bcdstr, int align);
+extern u32 asc_to_bcd(pu8 src,u32 len,pu8 dest );
 
 /*
  * -----------------------------------------------------------------------------

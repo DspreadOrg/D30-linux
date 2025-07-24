@@ -39,21 +39,32 @@ void ui_lv_img_set_src(lv_obj_t * obj, char* fileName){
     lv_img_set_src(obj, filePath);
 }
 
-lv_obj_t * ui_lvgl_menubtn_creat(lv_obj_t *parent,int w, int h,char* text,char* filename)
+lv_obj_t * ui_lvgl_menubtn_creat(lv_obj_t *parent,int w, int h,char* text,unsigned int textColorValue,char* filename)
 {
     lv_obj_t *menu_btn = lv_obj_create(parent);
     lv_obj_set_size(menu_btn, w, h);
+    
+    lv_obj_set_style_bg_color(menu_btn,lv_palette_lighten(LV_PALETTE_GREY, 3), 0);  // Light grey background
+    lv_obj_set_style_radius(menu_btn, 0, 0);  // Remove rounded corners
+    lv_obj_clear_flag(menu_btn, LV_OBJ_FLAG_SCROLLABLE);
+    
+    lv_obj_set_style_pad_all(menu_btn, 10, 0);
+    lv_obj_set_flex_flow(menu_btn, LV_FLEX_FLOW_COLUMN_WRAP);
+    lv_obj_set_flex_align(menu_btn, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_width(menu_btn, 0, 0);
+    lv_obj_set_style_radius(menu_btn, 20, 0);
+    
     
     lv_obj_t * icon = lv_img_create(menu_btn);
     ui_lv_img_set_src(icon, filename); // Use checkmark icon
 
     lv_obj_t * label = lv_label_create(menu_btn);
     lv_label_set_text(label, text);
-    lv_obj_set_style_text_color(label, lv_color_hex(0x1B1B1B), 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(textColorValue), 0);
     lv_obj_set_style_text_font(label, &ali_middle_24, 0);
 
-    lv_obj_set_flex_flow(menu_btn, LV_FLEX_FLOW_COLUMN); // Vertical arrangement
-    lv_obj_set_flex_align(menu_btn, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER); // All centered
+    // lv_obj_set_flex_flow(menu_btn, LV_FLEX_FLOW_COLUMN); // Vertical arrangement
+    // lv_obj_set_flex_align(menu_btn, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER); // All centered
 
     lv_obj_add_flag(menu_btn,LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_style(menu_btn, &menubtn_style_default, 0);
@@ -354,7 +365,7 @@ void ui_create_disp_common_msg() {
 
     lv_obj_t * btn = lv_btn_create(Main_Panel);
     lv_obj_add_style(btn, &menubtn_style_default, 0);
-    lv_obj_set_size(btn, 400, 80);
+    lv_obj_set_size(btn, 450, 80);
     lv_obj_align(btn, LV_ALIGN_TOP_MID, 0, 650);
     lv_obj_t * btn_label = lv_label_create(btn);
     lv_label_set_text(btn_label, "Back");

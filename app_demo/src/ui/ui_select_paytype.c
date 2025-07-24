@@ -62,22 +62,17 @@ void ui_create_select_pay_type() {
     lv_obj_set_style_text_color(tip_lable, lv_color_hex(0xFF0039), 0);
     lv_obj_set_style_text_font(tip_lable, &ali_middle_24, 0);
 
-    lv_obj_t *card_btn = ui_lvgl_menubtn_creat(Main_Panel,460,180,"Card","icon_card2.png");
+    lv_obj_t *card_btn = ui_lvgl_menubtn_creat(Main_Panel,460,180,"Bank Card",0x9933ff,"icon_card2.png");
     lv_obj_set_pos(card_btn, 10, 230);
     lv_obj_add_event_cb(card_btn, touch_key_event_cb, LV_EVENT_ALL,"1");
-    lv_obj_set_style_radius(card_btn, 0, 0);  // Remove rounded corners
 
-
-    lv_obj_t *scan_btn = ui_lvgl_menubtn_creat(Main_Panel,225,200,"Scan code","icon_Scan code2.png");
+    lv_obj_t *scan_btn = ui_lvgl_menubtn_creat(Main_Panel,225,200,"Scan QR code",0x66ccff,"icon_Scan code2.png");
     lv_obj_set_pos(scan_btn, 10, 420);
     lv_obj_add_event_cb(scan_btn, touch_key_event_cb, LV_EVENT_ALL,"2");
-    lv_obj_set_style_radius(scan_btn, 0, 0);  // Remove rounded corners
 
-
-    lv_obj_t *qrcode_btn = ui_lvgl_menubtn_creat(Main_Panel,225,200,"Generate","icon_generate2.png");
+    lv_obj_t *qrcode_btn = ui_lvgl_menubtn_creat(Main_Panel,225,200,"Generate QR code",0x0066cc,"icon_generate2.png");
     lv_obj_set_pos(qrcode_btn, 245, 420); // Set the position X and Y of the button object
     lv_obj_add_event_cb(qrcode_btn, touch_key_event_cb, LV_EVENT_ALL,"3");
-    lv_obj_set_style_radius(qrcode_btn, 0, 0);  // Remove rounded corners
-
+   
     lv_timer_enable(true);
 }

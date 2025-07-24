@@ -255,9 +255,7 @@ void sale_init(){
     strcat(g_transactionData.sOrderNo,g_transactionData.sTrace);
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, thread_function, NULL);
-    #ifndef MAIN_UI_NEW
     event_ui_register(UI_ENTER_AMOUNT);
-    #endif
 }
 
 void read_cards_process(){
@@ -287,6 +285,7 @@ void read_cards_process(){
         nRet = swipcard_process();
         if(nRet == RET_OK)
         {
+            get_transaction_data()->nStatus = APP_RC_COMPLETED;
             event_ui_register(UI_RESULT_SUCCESS);
         }
         else

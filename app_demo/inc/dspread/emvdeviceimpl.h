@@ -6,6 +6,28 @@ extern "C"
 {
 #endif
 
+#define EMV_OFFLINEPIN_INPUT    1   /*Offline password*/
+#define EMV_OFFLINE_ONLY_INPUT  2   /*Last offline password*/
+#define EMV_ONLINEPIN_INPUT   3   /*Online password*/
+// kernel type definition
+typedef enum
+{
+	EMV_L2= 0,
+	KERNEL_PAYPASS ,
+	KERNEL_PAYWAVE,
+	KERNEL_DPAS,
+	KERNEL_AMEX,
+	KERNEL_JCB,
+	KERNEL_PURE,
+	KERNEL_MIR,
+	KERNEL_RUPAY,
+	KERNEL_BANCOMAT,
+	KERNEL_INTERAC,
+	KERNEL_QUICS,
+	KERNEL_ENTRYPOINT
+
+}EmvKernelType;
+
 // EMV parameter tag definition
 #define EMVTAG_APP_PAN      0x5A
 #define EMVTAG_APP_EXPDATA  0x5F24
@@ -48,10 +70,6 @@ extern "C"
 #define EMVTAG_PAN_SFI_RECORDNO 0xBC
 #define EMVTAG_TRACK2_RECORDNO 0xBE
 
-#define EMV_OFFLINEPIN_INPUT    1   /*offline pin*/
-#define EMV_OFFLINE_ONLY_INPUT  2   /*latest offline pin*/
-#define EMV_ONLINEPIN_INPUT   3   /*online pin*/
-
 /*
  * Terminal configuration parameters
  */
@@ -66,9 +84,8 @@ typedef  struct  _EmvTermConfig_t
 	unsigned char _terminal_id[8];          /* 9F1C(Terminal), an8, 8 bytes */
 	unsigned char _trans_curr_code[2];      /* 5F2A(Terminal), n3, 2 bytes */
 	unsigned char _trans_curr_exp;          /* 5F36(Terminal), n1, 1 bytes */
-	unsigned char _merchant_name[20];		/* 9F4E商户名称*/
+	unsigned char _merchant_name[20];		/* 9F4E MERCHANT NAME*/
 }EmvTermConfig_t;
-
 
 /*
  * The output AID candidate list structure
@@ -151,6 +168,10 @@ typedef struct _EmvCallBack_t
 	int (*EMV_OnlineProcess)(EmvOnlineData_t* pOnlineData);
 // Information required by the kernel
 	int (*EMV_ProcessDisp)(EmvKernelDisp cType);
+	//affter select app callback
+	void (*EMV_AfterSelectApp)();
+	//affter read record callback
+	void (*EMV_AfterReadRecord)();
 }EmvCallBack_t;
 
 
@@ -202,27 +223,28 @@ typedef struct _EmvTransParams_t
 typedef enum
 {
 	APP_RC_START = -1,
-	APP_RC_COMPLETED = 0,
-	APP_RC_TERMINAL,
-	APP_RC_CANCEL,
-	APP_RC_EMV_DENAIL,
-	APP_RC_EMV_GAC2_DENAIL,
-	APP_RC_NFC_NOT_ALLOW,
-	APP_RC_EMV_APP_BLOCK,
-	APP_RC_EMV_APP_SEE_PHONE,
-	APP_RC_EMV_TRANS_TRY_ANOTHER_INTERFACE,
-	APP_RC_EMV_TRANS_GPO_NOT_SUPPORT,
-	APP_RC_FALL_BACK,
-	APP_RC_EMV_CARD_BLOCK,
-	APP_RC_CARD_NOT_SUPPORT,
+	APP_RC_COMPLETED = 0,            // Transaction success
+	APP_RC_TERMINAL,			     //Transaction Termination
+	APP_RC_CANCEL,                   // Transaction cancel
+	APP_RC_EMV_DENAIL,               // Transaction denail (fail)
+	APP_RC_EMV_GAC2_DENAIL,         // Transaction gac2 denail (fail)
+	APP_RC_NFC_NOT_ALLOW,           //NFC transactions are not allowed
+	APP_RC_EMV_APP_BLOCK,           //Card application locked
+	APP_RC_EMV_APP_SEE_PHONE,       //Please check your phone and authorize
+	APP_RC_EMV_TRANS_TRY_ANOTHER_INTERFACE,  //Please use contact to initiate the transaction again
+	APP_RC_EMV_TRANS_GPO_NOT_SUPPORT,    // gpo not support
+	APP_RC_FALL_BACK,					// Chip card reading failed, please swipe the card
+	APP_RC_EMV_CARD_BLOCK,           // card block
+	APP_RC_CARD_NOT_SUPPORT,        //Unsupported card
 
-	APP_RC_NFC_RETAP_TIMEOUT,
-	APP_RC_NFC_RETAP_CANCEL,
-	APP_RC_NFC_TERMINAL,
-	APP_RC_NFC_DOUBLETAP_DENAIL,
-	APP_RC_NFC_MULTI_CARD,
-	APP_RC_NFC_TRY_AGAIN,
-	APP_RC_TRANS_REVERSEL,
+	APP_RC_NFC_RETAP_TIMEOUT,      //Card re pasting timeout
+	APP_RC_NFC_RETAP_CANCEL,	//When prompted to reattach the card, timeout occurred
+	APP_RC_NFC_TERMINAL,        //NFC transaction termination
+	APP_RC_NFC_DOUBLETAP_DENAIL, //Second tap card denail
+	APP_RC_NFC_MULTI_CARD,      //Multiple cards detected
+	APP_RC_NFC_TRY_AGAIN,       //NFC card tap, please try again
+	APP_RC_TRANS_REVERSEL,      //The server approved, but the second GAC of the card failed and a reorganization needs to be initiated
+
 	APP_RC_NUMS,
 }EMV_L2_Return;
 
@@ -232,6 +254,7 @@ EMV_L2_Return Emv_Process(EmvTransParams_t emvTransParams);
 
 unsigned char* Emv_GetCoreData(unsigned int tagname, int *pvallen);
 
+// return value: 0 success -1 fail
 int Emv_SetCoreData(unsigned int tagname, unsigned char *pvalue, int valuelen);
 
 // Get a series of TLV data in tagname[], and the returned data format is TLV
@@ -250,6 +273,10 @@ int	Emv_GetAidTotalNum();
 int	Emv_GetCapkTotalNum();
 
 unsigned long EMV_L2_GetLastError();
+
+int Emv_GetKernelVersion(EmvKernelType kernelType,unsigned char *ver);
+//feturn: 0 succes  OTHER fail
+int Emv_SetOnlineResult(EmvOnlineData_t* pOnlineData);
 
 #ifdef __cplusplus
 }

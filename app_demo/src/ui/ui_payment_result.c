@@ -6,7 +6,6 @@ static lv_timer_t * result_timer = NULL;
 static int timer_count = 0;
 
 void saveRec(){
-    get_transaction_data()->nStatus = 0x01;
     TranRecord_WriteAndUpdateTradeRec(get_transaction_data());
     TransactionData tempTec;
     memset(&tempTec,0x0,sizeof(TransactionData));
@@ -40,10 +39,10 @@ static void pay_success_cb(lv_timer_t *timer) {
     lv_label_set_text(time_lable, szTime);
     // If the execution frequency reaches 5 times, delete the timer
     if (timer_count >= 3) {
-        saveRec();
         // if(get_transaction_data()->nTransType == TT_SALE && get_transaction_data()->nPosEntryMode != INPUT_QRCODE){
-        if(get_transaction_data()->nTransType == TT_SALE ){
-            event_ui_register(UI_PRINTER);
+        if(get_transaction_data()->nTransType == TT_SALE && get_transaction_data()->nStatus == APP_RC_COMPLETED){
+            saveRec();
+            event_ui_register(UI_SIGNATURE);
         }else{
             event_ui_register(UI_IDLE);
         }
@@ -65,18 +64,6 @@ static void touch_key_event_cb(lv_event_t * e)
         keyCode = lv_event_get_key(e);
         switch(keyCode){
             case KB_KEY_ENTER:
-                if (result_timer != NULL )
-                {
-                    lv_timer_del(result_timer);
-                    result_timer = NULL;
-                }
-                if(get_transaction_data()->nTransType == TT_SALE && get_transaction_data()->nStatus == APP_RC_COMPLETED){
-                    OsLog(LOG_DEBUG,"get_transaction_data()->nStatus [%d]", get_transaction_data()->nStatus );
-                    saveRec();
-                    event_ui_register(UI_PRINTER);
-                }else{
-                    event_ui_register(UI_IDLE);
-                }
                 break;
             case KB_KEY_CANCEL://cancel
                 if (result_timer != NULL )
@@ -106,7 +93,6 @@ static void touch_key_event_cb(lv_event_t * e)
                 }
                 
                 if(get_transaction_data()->nTransType == TT_SALE && get_transaction_data()->nStatus == APP_RC_COMPLETED){
-                    OsLog(LOG_DEBUG,"get_transaction_data()->nStatus [%d]", get_transaction_data()->nStatus );
                     saveRec();
                     event_ui_register(UI_SIGNATURE);
                 }else{
@@ -162,7 +148,7 @@ void ui_create_payresult_fail() {
 
     lv_obj_t * btn = lv_btn_create(Main_Panel);
     lv_obj_add_style(btn, &menubtn_style_default, 0);
-    lv_obj_set_size(btn, 400, 80);
+    lv_obj_set_size(btn, 450, 80);
     lv_obj_align(btn, LV_ALIGN_TOP_MID, 0, 650);
     lv_obj_t * btn_label = lv_label_create(btn);
     lv_label_set_text(btn_label, "Back");
@@ -213,14 +199,14 @@ void ui_create_payresult_success() {
     lv_obj_set_style_text_font(time_lable, &ali_middle_24, 0);
 
     lv_obj_t *btn = lv_btn_create(Main_Panel);
-    lv_obj_set_size(btn, 400, 80);
+    lv_obj_set_size(btn, 450, 80);
     lv_obj_align(btn, LV_ALIGN_TOP_MID, 0, 650);
     lv_obj_add_event_cb(btn, touch_key_event_cb, LV_EVENT_CLICKED, "1");
 
     // Set the background color to gray
-    lv_obj_set_style_bg_color(btn, lv_color_hex(0xFF0039), 0);  // gray background
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0x228B22), 0);  
     lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);  // Ensure opacity
-    lv_obj_set_style_radius(btn, 0, 0);  // Remove rounded corners
+    lv_obj_set_style_radius(btn, 20, 0);  // Remove rounded corners
 
     // Red font
     lv_obj_t *label = lv_label_create(btn);
@@ -312,24 +298,24 @@ void ui_create_print() {
 
     lv_obj_t *print_cancle_button = lv_btn_create(Main_Panel);
     lv_obj_set_size(print_cancle_button, 200, 80);
-    lv_obj_align(print_cancle_button, LV_ALIGN_BOTTOM_LEFT, 12, 8);
+    lv_obj_align(print_cancle_button, LV_ALIGN_BOTTOM_LEFT, 12, -10);
     lv_obj_set_style_pad_all(print_cancle_button,0,0);
-    lv_obj_set_style_bg_color(print_cancle_button, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(print_cancle_button,lv_color_hex(0xBCBCBC), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(print_cancle_button, lv_color_hex(0xFFA500), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(print_cancle_button,lv_color_hex(0xFFA500), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(print_cancle_button,1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_event_cb(print_cancle_button, touch_key_event_print_cb, LV_EVENT_ALL, "0");
 
     lv_obj_t * print_cancl_label =lv_label_create(print_cancle_button);
     lv_label_set_text(print_cancl_label, "No");
     lv_obj_align(print_cancl_label, LV_ALIGN_CENTER, 0, -4);
-    lv_obj_set_style_text_color(print_cancl_label, lv_color_hex(0x000000), 0);
+    // lv_obj_set_style_text_color(print_cancl_label, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_font(print_cancl_label, &ali_middle_24, 0);
 
     lv_obj_t *print_comfirm_button = lv_btn_create(Main_Panel);
     lv_obj_set_size(print_comfirm_button, 200, 80);
-    lv_obj_align(print_comfirm_button, LV_ALIGN_BOTTOM_RIGHT, -12, 8);
+    lv_obj_align(print_comfirm_button, LV_ALIGN_BOTTOM_RIGHT, -12, -10);
     lv_obj_set_style_pad_all(print_comfirm_button,0,0);
-    lv_obj_set_style_bg_color(print_comfirm_button, lv_color_hex(0xFF0039), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(print_comfirm_button, lv_color_hex(0x228B22), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(print_comfirm_button,0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_event_cb(print_comfirm_button, touch_key_event_print_cb, LV_EVENT_ALL, "28");
 

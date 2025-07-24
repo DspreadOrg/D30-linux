@@ -266,10 +266,10 @@ void ui_create_signature() {
 
     lv_obj_t *sign_clear_button = lv_btn_create(Main_Panel);
     lv_obj_set_size(sign_clear_button, 200, 80);
-    lv_obj_align(sign_clear_button, LV_ALIGN_BOTTOM_LEFT, 12, 4);
-    lv_obj_set_style_bg_color(sign_clear_button, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_align(sign_clear_button, LV_ALIGN_BOTTOM_LEFT, 12, -10);
+    lv_obj_set_style_bg_color(sign_clear_button, lv_color_hex(0xff3333), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_all(sign_clear_button, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(sign_clear_button,lv_color_hex(0xBCBCBC), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(sign_clear_button,lv_color_hex(0xff3333), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(sign_clear_button,1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_event_cb(sign_clear_button, touch_key_event_cb, LV_EVENT_ALL, "14");
     button_list[0] = sign_clear_button;
@@ -277,15 +277,15 @@ void ui_create_signature() {
     lv_obj_t * sign_clear_label =lv_label_create(sign_clear_button);
     lv_label_set_text(sign_clear_label, "Re-sign");
     lv_obj_align(sign_clear_label, LV_ALIGN_CENTER, 0, -3);
-    lv_obj_set_style_text_color(sign_clear_label, lv_color_hex(0x000000), 0);
+    // lv_obj_set_style_text_color(sign_clear_label, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_font(sign_clear_label, &ali_middle_24, 0);
 
     lv_obj_t *sign_comfirm_button = lv_btn_create(Main_Panel);
     lv_obj_set_size(sign_comfirm_button, 200, 80);
-    lv_obj_align(sign_comfirm_button, LV_ALIGN_BOTTOM_RIGHT, -12, 4);
-    lv_obj_set_style_bg_color(sign_comfirm_button, lv_color_hex(0xFF0039), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_align(sign_comfirm_button, LV_ALIGN_BOTTOM_RIGHT, -12, -10);
+    lv_obj_set_style_bg_color(sign_comfirm_button, lv_color_hex(0x228B22), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_add_state(sign_comfirm_button, LV_STATE_DISABLED);
-    lv_obj_set_style_border_color(sign_clear_button,lv_color_hex(0xBCBCBC),LV_STATE_PRESSED);
+    lv_obj_set_style_border_color(sign_clear_button,lv_color_hex(0x228B22),LV_STATE_PRESSED);
     lv_obj_set_style_border_width(sign_clear_button,1, LV_STATE_PRESSED);
     lv_obj_add_event_cb(sign_comfirm_button, touch_key_event_cb, LV_EVENT_ALL, "28");
     button_list[1] = sign_comfirm_button;

@@ -179,7 +179,258 @@ static void lv_event_idle_timer(struct _lv_timer_t *t)
     return;
 }
 
-#ifndef MAIN_UI_NEW
+#ifdef MAIN_UI_NEW
+
+static lv_obj_t * grad_pad;
+static lv_obj_t * disp_img;
+static int disp_index = 0;
+
+static const char* disp_img_path[3] = {"disp_msg11.png", "disp_msg22.png", "disp_msg33.png"};
+
+static void update_grad_disp(void)
+{
+    int i = 0;
+    lv_obj_t *child = NULL;
+    uint32_t childCount = lv_obj_get_child_cnt(grad_pad);
+
+    for(i = 0; i < childCount; i ++)
+    {
+        child = lv_obj_get_child(grad_pad, i);
+
+        if (i == disp_index)
+        {
+            lv_obj_add_state(child, LV_STATE_PRESSED);
+        }
+        else
+        {
+            lv_obj_clear_state(child, LV_STATE_PRESSED);
+        }
+    }
+}
+
+
+static void ui_event_close_timer(lv_event_t * event)
+{
+    lv_event_code_t code = lv_event_get_code(event);
+    if (code == LV_EVENT_DELETE)
+    {
+        lv_timer_t* payment_img_timer = event->user_data;
+        if(payment_img_timer != NULL)
+        {
+            lv_timer_del(payment_img_timer);
+        }
+    }
+}
+
+
+static void payment_img_timer_callback(lv_timer_t * timer)
+{
+    disp_index ++;
+    if (disp_index >= sizeof(disp_img_path)/sizeof(char*))
+    {
+        disp_index = 0;
+    }
+    
+    ui_lv_img_set_src(disp_img, (char*)disp_img_path[disp_index]);
+    update_grad_disp();
+}
+
+void disp_grad_msg(lv_obj_t * parent)
+{
+    disp_img = lv_img_create(parent);
+    disp_index = 0;
+    ui_lv_img_set_src(disp_img, (char*)disp_img_path[disp_index]);
+    lv_obj_align(disp_img, LV_ALIGN_CENTER, 0, 0);
+    // lv_obj_set_size(payment_img,96,82);
+    lv_timer_t* disp_img_timer = lv_timer_create(payment_img_timer_callback, 2500, NULL);   // Responsible for updating card swiping prompts
+    lv_obj_add_event_cb(disp_img, ui_event_close_timer, LV_EVENT_DELETE, disp_img_timer);   // Responsible for turning off the timer
+
+    grad_pad = lv_obj_create(Main_Panel);
+    lv_obj_set_size(grad_pad, 140, 5);
+    lv_obj_align(grad_pad, LV_ALIGN_CENTER, 0, -130);
+    lv_obj_set_style_border_width(grad_pad, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(grad_pad, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_flex_flow(grad_pad, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(grad_pad,LV_FLEX_ALIGN_SPACE_EVENLY, 0, 0);
+    
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        lv_obj_t * line = lv_obj_create(grad_pad);
+        lv_obj_set_size(line, 20, 2);
+        lv_obj_align(line, LV_ALIGN_BOTTOM_MID, 0, 0); 
+        lv_obj_set_style_radius(line, 0, 0);
+        lv_obj_set_style_border_width(line, 0, 0);
+        lv_obj_set_style_pad_all(line, 0, 0);
+        lv_obj_set_style_bg_color(line, lv_color_hex(0x1B1B1B), 0);
+        lv_obj_set_style_bg_color(line, lv_color_hex(0xFF0039), LV_STATE_PRESSED);
+    }
+    update_grad_disp();
+}
+
+void lvgl_MainMenu()
+{
+    idleTimeStart = 0;
+    lv_obj_clean(Main_Panel);
+    lv_group_remove_all_objs(group_keypad_indev);
+
+    OsCloseCamera();
+    resumeStatusBarIcon();
+
+    lv_obj_t *msg_card = lv_obj_create(Main_Panel);
+    lv_obj_set_size(msg_card, 450, 250);
+    lv_obj_align(msg_card, LV_ALIGN_TOP_MID, 0, 25);  // The Y coordinate is the same as the Setting card at 240+200+20
+    lv_obj_set_style_bg_color(msg_card, lv_palette_lighten(LV_PALETTE_GREY, 3), 0); 
+    lv_obj_set_style_radius(msg_card, 0, 0);  //Remove rounded corners
+    lv_obj_clear_flag(msg_card, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_set_style_pad_all(msg_card, 10, 0);
+    lv_obj_set_flex_flow(msg_card, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_flex_align(msg_card, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_width(msg_card, 0, 0);
+    lv_obj_set_style_radius(msg_card, 20, 0);
+    disp_grad_msg(msg_card);
+
+    lv_obj_t *payment_card = lv_obj_create(Main_Panel);
+    lv_obj_set_size(payment_card, 450, 120);
+    lv_obj_align(payment_card, LV_ALIGN_CENTER, 0, -30);  // The Y coordinate is the same as the Setting card at 240+200+20
+    lv_obj_set_style_bg_color(payment_card, lv_palette_lighten(LV_PALETTE_GREY, 3), 0);  // Purple background
+    lv_obj_set_style_radius(payment_card, 0, 0);  //Remove rounded corners
+    lv_obj_add_event_cb(payment_card, touch_key_event_cb, LV_EVENT_ALL, "1");
+    lv_obj_clear_flag(payment_card, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_set_style_pad_all(payment_card, 10, 0);
+    lv_obj_set_flex_flow(payment_card, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_flex_align(payment_card, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_width(payment_card, 0, 0);
+    lv_obj_set_style_radius(payment_card, 20, 0);
+
+    lv_obj_t *sale_img = lv_img_create(payment_card);
+    ui_lv_img_set_src(sale_img, "icon_NEWSALE.png");
+    lv_obj_align(sale_img, LV_ALIGN_LEFT_MID, 0, 20);
+
+    lv_obj_t *sale_label = lv_label_create(payment_card);
+    lv_label_set_text(sale_label, "Make a payment");
+    lv_obj_set_style_text_font(sale_label, &ali_middle_36, 0);
+    lv_obj_align_to(sale_label, sale_img, LV_ALIGN_OUT_RIGHT_MID, 0, 20);
+
+    // lv_obj_t *sale_label2 = lv_label_create(payment_card);
+    // lv_label_set_text(sale_label2, "Tap to initiate a new transaction");
+    // lv_obj_set_style_text_font(sale_label2, &ali_middle_18, 0);
+    // lv_obj_set_style_text_color(sale_label2, lv_palette_lighten(LV_PALETTE_GREY, 1), 0);
+    // lv_obj_align_to(sale_label2, sale_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);  
+
+    lv_obj_t *action_msg = lv_label_create(Main_Panel);
+    lv_label_set_text_fmt(action_msg, "Quick Actions");
+    lv_obj_set_style_text_font(action_msg, &ali_middle_36, 0);
+    lv_obj_align(action_msg, LV_ALIGN_LEFT_MID, 15, 90);
+
+
+    lv_obj_t *trade_card = lv_obj_create(Main_Panel);
+    lv_obj_set_size(trade_card, 130, 100);
+    lv_obj_align(trade_card, LV_ALIGN_LEFT_MID, 15, 180); 
+    lv_obj_add_event_cb(trade_card, touch_key_event_cb, LV_EVENT_ALL, "2");
+    lv_obj_clear_flag(trade_card, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_color(trade_card, lv_palette_lighten(LV_PALETTE_GREY, 3), 0);
+
+    lv_obj_set_style_pad_all(trade_card, 10, 0);
+    lv_obj_set_flex_flow(trade_card, LV_FLEX_FLOW_COLUMN_WRAP);
+    lv_obj_set_flex_align(trade_card, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_width(trade_card, 0, 0);
+    lv_obj_set_style_radius(trade_card, 20, 0);
+
+
+    lv_obj_t *trade_img = lv_img_create(trade_card);
+    ui_lv_img_set_src(trade_img,"icon_Transactions2.png");
+    lv_obj_align(trade_img, LV_ALIGN_TOP_MID, 0, 5);
+
+    lv_obj_t *trade_label = lv_label_create(trade_card);
+    lv_label_set_text(trade_label, "Transactions");
+    lv_obj_set_style_text_font(trade_label, &ali_middle_18, 0);
+    lv_obj_set_style_text_color(trade_label,lv_color_hex(0x9933ff), 0); 
+    lv_obj_align_to(trade_label, trade_img, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    
+
+    // Create a Setting card on the right side (light blue)
+    lv_obj_t *setting_card = lv_obj_create(Main_Panel);
+    lv_obj_set_size(setting_card, 130, 100);
+    lv_obj_align(setting_card, LV_ALIGN_CENTER, 0,180);  // Align the Y coordinate 460 with the Trade card
+    lv_obj_set_style_bg_color(setting_card, lv_palette_lighten(LV_PALETTE_GREY, 3), 0);  // Light blue background
+    lv_obj_set_style_radius(setting_card, 0, 0);  // Remove rounded corners
+    lv_obj_add_event_cb(setting_card, touch_key_event_cb, LV_EVENT_ALL, "3");
+    lv_obj_clear_flag(setting_card, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_set_style_pad_all(setting_card, 10, 0);
+    lv_obj_set_flex_flow(setting_card, LV_FLEX_FLOW_COLUMN_WRAP);
+    lv_obj_set_flex_align(setting_card, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_width(setting_card, 0, 0);
+    lv_obj_set_style_radius(setting_card, 20, 0);
+
+    // Add Setting Card Content
+    lv_obj_t *setting_img = lv_img_create(setting_card);
+    ui_lv_img_set_src(setting_img,"icon_setting2.png");
+    lv_obj_align(setting_img, LV_ALIGN_TOP_MID, 0, 5);
+
+    lv_obj_t *setting_label = lv_label_create(setting_card);
+    lv_label_set_text(setting_label, "  Setting  ");
+    lv_obj_set_style_text_font(setting_label, &ali_middle_18, 0);
+    lv_obj_set_style_text_color(setting_label, lv_color_hex(0x66ccff), 0);  // White font
+    lv_obj_align_to(setting_label, setting_img, LV_ALIGN_OUT_BOTTOM_MID, 0,0);
+    // lv_obj_align(setting_label, LV_ALIGN_BOTTOM_MID, 0,0);
+
+    // Create the About card on the right (dark blue)
+    lv_obj_t *about_card = lv_obj_create(Main_Panel);
+    lv_obj_set_size(about_card, 130, 100);
+    lv_obj_align(about_card, LV_ALIGN_RIGHT_MID, -15, 180); 
+    lv_obj_set_style_bg_color(about_card,lv_palette_lighten(LV_PALETTE_GREY, 3), 0);  // Light grey background
+    lv_obj_set_style_radius(about_card, 0, 0);  // Remove rounded corners
+    lv_obj_add_event_cb(about_card, touch_key_event_cb, LV_EVENT_ALL, "4");
+    lv_obj_clear_flag(about_card, LV_OBJ_FLAG_SCROLLABLE);
+    
+    lv_obj_set_style_pad_all(about_card, 10, 0);
+    lv_obj_set_flex_flow(about_card, LV_FLEX_FLOW_COLUMN_WRAP);
+    lv_obj_set_flex_align(about_card, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_width(about_card, 0, 0);
+    lv_obj_set_style_radius(about_card, 20, 0);
+
+    // Add About Card Content
+    lv_obj_t *about_img = lv_img_create(about_card);
+    ui_lv_img_set_src(about_img,"icon_about2.png");
+    lv_obj_align(about_img, LV_ALIGN_TOP_MID, 0, 5);
+
+    lv_obj_t *about_label = lv_label_create(about_card);
+    lv_label_set_text(about_label, "About");
+    lv_obj_set_style_text_font(about_label, &ali_middle_18, 0);
+    lv_obj_set_style_text_color(about_label, lv_color_hex(0x0066cc), 0);  // White font
+    lv_obj_align_to(about_label, about_img, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+
+    // lv_obj_t * line = lv_obj_create(Main_Panel);
+    // lv_obj_set_size(line, 480, 2); //
+    // lv_obj_align(line, LV_ALIGN_BOTTOM_MID, 0, -150);
+    // lv_obj_set_style_bg_color(line, lv_palette_main(LV_PALETTE_GREY), 0);
+    // lv_obj_clear_flag(line, LV_OBJ_FLAG_SCROLLABLE);
+    
+    lv_obj_t *msg_label = lv_label_create(Main_Panel);
+    lv_label_set_text(msg_label, "Device ID: D30");
+    lv_obj_set_style_text_font(msg_label, &ali_middle_18, 0);
+    lv_obj_align(msg_label, LV_ALIGN_BOTTOM_MID, 0, -110);
+    lv_obj_set_style_text_color(msg_label, lv_palette_lighten(LV_PALETTE_GREY, 1), 0);
+
+    unsigned char sn[32] = {0};
+    OsGetTermSn(sn);
+    lv_obj_t *msg_label2 = lv_label_create(Main_Panel);
+    lv_label_set_text_fmt(msg_label2, "Serial: %s",sn);
+    lv_obj_set_style_text_font(msg_label2, &ali_middle_18, 0);
+    lv_obj_align(msg_label2, LV_ALIGN_BOTTOM_MID, 0, -80);
+    lv_obj_set_style_text_color(msg_label2, lv_palette_lighten(LV_PALETTE_GREY, 1), 0);
+
+    lv_obj_t *msg_label3 = lv_label_create(Main_Panel);
+    lv_label_set_text_fmt(msg_label3, "App: %s|OS: Linux",APP_VERSION);
+    lv_obj_set_style_text_font(msg_label3, &ali_middle_18, 0);
+    lv_obj_align(msg_label3, LV_ALIGN_BOTTOM_MID, 0, -50);
+    lv_obj_set_style_text_color(msg_label3, lv_palette_lighten(LV_PALETTE_GREY, 1), 0);
+}
+#else
 
 void lvgl_MainMenu(void)
 {
@@ -276,6 +527,7 @@ void lvgl_MainMenu(void)
     lv_obj_align_to(about_label, about_img, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
 #endif
+
 static void lv_event_ad_timer(struct _lv_timer_t *t)
 {   
     lv_obj_t *temp_img = t->user_data;
@@ -568,6 +820,7 @@ void showStatusBar(){
     }
     lv_obj_set_style_bg_opa(src_Panel, LV_OPA_COVER, LV_PART_MAIN);//Set screen transparency
     lv_obj_set_style_bg_opa(Main_Panel, LV_OPA_COVER, LV_PART_MAIN);//Set screen transparency
+    //lv_obj_set_style_bg_color(Main_Panel, lv_color_hex(0xF3EFDD), 0); 
     
     lv_obj_set_style_pad_all(Main_Panel, 0, 0); // Clear all margins
     lv_obj_set_style_radius(Main_Panel, 0, 0); // Set the fillet radius to 0
@@ -587,7 +840,7 @@ void showStatusBar(){
     lv_obj_align(Icon_gprs, LV_ALIGN_TOP_LEFT, 5, 4);
 
     Icon_ppp_status = lv_img_create(statusBar_Panel);
-    lv_obj_align(Icon_ppp_status, LV_ALIGN_TOP_LEFT, 26, 10);
+    lv_obj_align(Icon_ppp_status, LV_ALIGN_TOP_LEFT, 26, 5);
 
     lv_style_t input_style;
     lv_style_init(&input_style);
@@ -655,7 +908,7 @@ void app_init()
     ui_appinit();
     lv_timer_handler();
     // You can perform some time-consuming operations during startup here
-    #if 1    //for test
+    #if 0    //for test
     Ped_Dukpt_Init();
     #endif 
     OsWlSetAutoConnectStatus(1); //By default, wl automatic connection is enabled upon startup

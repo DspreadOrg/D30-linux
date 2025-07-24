@@ -69,7 +69,10 @@ void event_ui_handle(uint32 event_ui_id){
 			break;	
 		case UI_ENTER_ONLINE_PIN:
 			ui_create_enter_online_pin();
-			break;	
+			break;
+		case UI_DISP_MASK_PIN:
+			disp_mask_pin();
+			break;		
 		case UI_MULTI_APP_SELECT:
 			ui_create_multiapp_sel();
 			break;	

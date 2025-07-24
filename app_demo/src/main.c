@@ -74,9 +74,8 @@ int App_nInitialization()
 	DisplayInit();   //UI init
     DB_bInit(szAppId); //database init
     EmvL2_Init();   // EMV initialization
-    //EmvL2_SetDefaultAidAndCapk();
-
-	return 0;
+    
+ 	return 0;
 }
 
 #include "memtrack.h"

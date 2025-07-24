@@ -1,5 +1,4 @@
 #include "appinc.h"
-
 static lv_obj_t * grad_pad;
 static lv_obj_t * payment_img;
 static int payment_index = 0;
@@ -95,7 +94,6 @@ void ui_create_read_card() {
     lv_obj_clean(Main_Panel);
     lv_group_remove_all_objs(group_keypad_indev);
     lv_obj_clear_flag(Main_Panel, LV_OBJ_FLAG_SCROLLABLE); // Disable scrolling
-
     ui_lvgl_page_construct("Sale",touch_key_event_cb);
      
     //3prompt
@@ -113,7 +111,6 @@ void ui_create_read_card() {
     // lv_obj_set_size(payment_img,96,82);
     lv_timer_t* payment_img_timer = lv_timer_create(payment_img_timer_callback, 1600, NULL);   // Responsible for updating card swiping prompts
     lv_obj_add_event_cb(payment_img, ui_event_close_timer, LV_EVENT_DELETE, payment_img_timer);   // Responsible for turning off the timer
-
     grad_pad = lv_obj_create(Main_Panel);
     lv_obj_set_size(grad_pad, 140, 5);
     lv_obj_align(grad_pad, LV_ALIGN_TOP_MID, 0, 400);
@@ -146,7 +143,6 @@ void ui_create_read_card() {
         lv_obj_clear_flag(line, LV_OBJ_FLAG_SCROLLABLE);
     }
     #endif
-
     lv_obj_t *tip_lable = lv_label_create(Main_Panel);
     lv_label_set_text(tip_lable, "Insert,tap or swipe");
     lv_obj_align(tip_lable, LV_ALIGN_TOP_MID, 0, 450);
@@ -155,4 +151,3 @@ void ui_create_read_card() {
     event_trans_register(EVENT_READCARD);
     lv_timer_enable(true);
 }
-

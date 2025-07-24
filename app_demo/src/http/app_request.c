@@ -138,10 +138,8 @@ int sale_online_request(EmvOnlineData_t* pOnlineData)
         #if 1              // just a demo
             memcpy(pOnlineData->iccResponse,"00",2); //responcess
             //Analyze the EMV data returned by the server, which should include 91tag or 71 or 72tag
-            //Convert data to bcd format
-            //example 91081111111111111111111111 
-            // nAsc2Bcd("91081111111111111111",10,pOnlineData->ackdata,0);
-            // pOnlineData->ackdatalen = strlen("91081111111111111111")/2;
+            // memcpy(pOnlineData->ackdata,"\x72\x20\x86\x0E\x04\xDA\x00\x00\x02\x01\x92\x42\x81\x02\x7A\x08\xE4\x36\x86\x06\x04\xDA\x00\x00\x00\x01\x86\x06\x04\xDA\x00\x00\x01\x01",34);
+			// pOnlineData->ackdatalen = 34;
     
             ret = RET_OK;
             goto exit;
@@ -149,8 +147,7 @@ int sale_online_request(EmvOnlineData_t* pOnlineData)
     }
     else
     {
-        // setEmvResponse(pTradingFile,RC_ONLINE_DECLINE);
-        ret = RecvLen;
+        ret = PR_FAILD;
     }
     
 exit:    

@@ -2456,9 +2456,7 @@ int OsOpenFlashLight();
 //close the camera flash
 int OsCloseFlashLight();
 
-/*
- * Lvgl
- */
+/**********************LVGL********************/
 int OsLvglDispFlush(int wX, int wY, int wWidth, int wHeight, unsigned char* pucBuffer);
 
 #ifdef __cplusplus

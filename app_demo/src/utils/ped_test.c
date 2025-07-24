@@ -146,7 +146,7 @@ void dukpt_test()
     nRet = OsPedIncreaseKsnDukpt(PED_PIN_IPEK_INDEX);
 	if(nRet == RET_OK)
 	{
-		nRet = OsPedDesDukpt(PED_TRK_IPEK_INDEX,0x01,NULL,16,data,outData,ksn,0x03);
+		nRet = OsPedDesDukpt(PED_TRK_IPEK_INDEX,0x02,NULL,16,data,outData,ksn,0x03);
 		if(nRet == RET_OK)
 		{
 			OsLog(LOG_DEBUG,"==========OsPedDesDukpt ok nRet= %d",nRet);
