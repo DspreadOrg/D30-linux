@@ -103,7 +103,8 @@ typedef struct _AidCandidate_t
 	unsigned char  _enable;              /* indicate whether the candidate is enabled 
 									0	remove
 									1	available*/
-	unsigned char _resv[3];		/*	reserve bytes	*/
+	unsigned char  _table_index;    /*  issuer code table index 9F11(ICC), n1, 1 byte */
+	unsigned char _resv[2];		/*	reserve bytes	*/
 	int   _file_offset;         		/* the offset of this AID	in the parameters file */
 }AidCandidate_t;
 
@@ -151,6 +152,7 @@ typedef enum
 	EMV_DISP_SEE_PHONE ,
 	EMV_DISP_NFC_RETAP,
 	EMV_DISP_REMOVE_CARD,
+	EMV_DISP_OFFLINE_PIN_BLOCKED
 
 }EmvKernelDisp;
 

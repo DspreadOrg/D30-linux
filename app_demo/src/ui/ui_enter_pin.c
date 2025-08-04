@@ -35,6 +35,10 @@ static void touch_key_event_cb(lv_event_t * e)
                     memcpy(get_transaction_data()->sPin,szPin,strlen(szPin));
                     get_transaction_data()->emv_enter_offline_pin_result = 0;
                 }
+                else if(strlen(szPin) == 0)
+                {
+                    get_transaction_data()->emv_enter_offline_pin_result = 1;
+                }
                 break;
         }
     }

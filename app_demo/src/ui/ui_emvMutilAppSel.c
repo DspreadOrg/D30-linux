@@ -15,7 +15,7 @@ static void touch_key_event_cb(lv_event_t * e)
 
     lv_event_code_t code = lv_event_get_code(e);
     char* index = (char*)lv_event_get_user_data(e);
-     OsLog(LOG_DEBUG," code = %d",code);
+    //  OsLog(LOG_DEBUG," code = %d",code);
     if( code == LV_EVENT_KEY){
         keyCode = lv_event_get_key(e);
         OsLog(LOG_DEBUG," keyCode = %04x",keyCode);

@@ -203,6 +203,10 @@ int inputPasswd(int type, char *pszPin){
 			memcpy(pszPin,get_transaction_data()->sPin,strlen(get_transaction_data()->sPin));
 			ret = strlen(get_transaction_data()->sPin);
 		}
+		else if(get_transaction_data()->emv_enter_offline_pin_result == 1) //pin bypass
+		{
+			ret = 0;
+		}
 		else
 		{
 			ret = -1;
