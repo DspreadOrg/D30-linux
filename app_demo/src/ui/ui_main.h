@@ -108,6 +108,7 @@ void ui_create_remove_card();
 void ui_create_nfc_retap();
 void ui_create_see_phone();
 void ui_create_ota_check();
+void ui_create_update();
 void  ui_create_disp_common_msg();
 void ui_create_wifi_connect();
 void ui_create_wifi_select();

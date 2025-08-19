@@ -7,6 +7,84 @@ static lv_obj_t * Upgrade_bar = NULL;
 // static unsigned char tip_msg[64];
 // static unsigned char percentage_msg[8];
 
+static void touch_key_event_update_cb(lv_event_t * e)
+{
+    int keyCode;
+
+    lv_event_code_t code = lv_event_get_code(e);
+    char* index = (char*)lv_event_get_user_data(e);
+    if( code == LV_EVENT_KEY){
+        keyCode = lv_event_get_key(e);
+        switch(keyCode){
+            case KB_KEY_ENTER:
+                event_ui_register(UI_OTA_CHECK);
+                break;
+            case KB_KEY_CANCEL://cancel
+                event_ui_register(UI_IDLE);
+                break;
+        }  
+    }else if (code == LV_EVENT_CLICKED){   
+        keyCode = atoi(index);
+        switch(keyCode){
+            case 0: //cancel
+                event_ui_register(UI_IDLE);
+                break;
+            case 28:
+                event_ui_register(UI_OTA_CHECK);
+                break;
+        }
+    }
+}
+void ui_create_update() {
+
+    lv_timer_enable(false);
+    lv_obj_clean(Main_Panel);
+    lv_group_remove_all_objs(group_keypad_indev);
+    lv_obj_clear_flag(Main_Panel, LV_OBJ_FLAG_SCROLLABLE); // Disable scrolling
+    
+    lv_obj_t * result_img = lv_img_create(Main_Panel);
+    lv_obj_align(result_img, LV_ALIGN_TOP_MID, 0, 200);
+    ui_lv_img_set_src(result_img, (char*)"update.png");
+
+    lv_obj_t * amount_lable = lv_label_create(Main_Panel);
+    lv_label_set_text(amount_lable, "There is an update task. Update?");
+    lv_obj_align(amount_lable, LV_ALIGN_TOP_MID, 0, 450);
+    lv_obj_set_style_text_color(amount_lable, lv_color_hex(0x1B1B1B), 0);
+    lv_obj_set_style_text_font(amount_lable, &ali_middle_24, 0);
+
+
+    lv_obj_t *update_cancle_button = lv_btn_create(Main_Panel);
+    lv_obj_set_size(update_cancle_button, 200, 80);
+    lv_obj_align(update_cancle_button, LV_ALIGN_BOTTOM_LEFT, 12, -10);
+    lv_obj_set_style_pad_all(update_cancle_button,0,0);
+    lv_obj_set_style_bg_color(update_cancle_button, lv_color_hex(0xFFA500), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(update_cancle_button,lv_color_hex(0xFFA500), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(update_cancle_button,1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(update_cancle_button, touch_key_event_update_cb, LV_EVENT_ALL, "0");
+
+    lv_obj_t * update_cancl_label =lv_label_create(update_cancle_button);
+    lv_label_set_text(update_cancl_label, "No");
+    lv_obj_align(update_cancl_label, LV_ALIGN_CENTER, 0, -4);
+    // lv_obj_set_style_text_color(update_cancl_label, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_font(update_cancl_label, &ali_middle_24, 0);
+
+    lv_obj_t *update_comfirm_button = lv_btn_create(Main_Panel);
+    lv_obj_set_size(update_comfirm_button, 200, 80);
+    lv_obj_align(update_comfirm_button, LV_ALIGN_BOTTOM_RIGHT, -12, -10);
+    lv_obj_set_style_pad_all(update_comfirm_button,0,0);
+    lv_obj_set_style_bg_color(update_comfirm_button, lv_color_hex(0x228B22), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(update_comfirm_button,0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(update_comfirm_button, touch_key_event_update_cb, LV_EVENT_ALL, "28");
+
+    lv_obj_t * update_comfirm_label =lv_label_create(update_comfirm_button);
+    lv_label_set_text(update_comfirm_label, "YES");
+    lv_obj_align(update_comfirm_label, LV_ALIGN_CENTER, 0, -4);
+    lv_obj_set_style_text_font(update_comfirm_label, &ali_middle_24, 0);
+    
+    lv_group_add_obj(group_keypad_indev,update_comfirm_label);
+    lv_obj_add_event_cb(update_comfirm_label, touch_key_event_update_cb, LV_EVENT_ALL, "28");
+    lv_timer_enable(true);
+}
 void TmsDispCallback(u32 id, char *pMsg)
 {
     u32 i ;
@@ -31,7 +109,10 @@ void TmsDispCallback(u32 id, char *pMsg)
             break;
         case TMS_DISP_UPGRADING:
             lv_label_set_text(tip_lable, "Upgrading...");
-        break;
+            break;
+        case TMS_DISP_HAVE_UPDATE_TASE:
+            event_ui_register(UI_OTA_HAVE_UDPATE_TASK);
+            break;
         default:
             break;
     }
@@ -46,8 +127,7 @@ void larktms_init()
     larktmsCbk.ssl_send = ssl_send_msg;
     larktmsCbk.ssl_recv = ssl_recv_msg;
 
-    larktms_ssl_Init(&larktmsCbk);
-    LarkTms_Disp_Callback_Register(TmsDispCallback);
+    larktms_service_start(&larktmsCbk,TmsDispCallback,TMS_FW_HEART_CUSTOM_URL,APP_VERSION);
 }
 
 int ota_process()
@@ -55,7 +135,6 @@ int ota_process()
     int result = -1,key;
     unsigned char dispMsg[64]= {0};
 
-    larktms_init();
     result = larktms_client_check(TMS_FW_HEART_CUSTOM_URL,APP_VERSION);
 
     switch(result)

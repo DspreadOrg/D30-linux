@@ -160,6 +160,8 @@ typedef struct _EmvCallBack_t
 {	
 // Multi-application selection Return value >=0 Return the selected AID serial number -1 failed
 	int (*EMV_AidSelect)(AidCandidate_t *pList, int listNum);
+//set kernel id , return: 0 success, other failed 
+	int (*EMV_SetKernelId)(unsigned char *aid,int aidLen,int *kernelId);
 // Card number confirmation, return value 0 confirmation -1 failed
 	int (*EMV_ConfirmCardInfo)(char *pan,int len);
 // Request pin cType: 1 offline password 2 last offline password 3 online password Return value - 1 input failed - 2 BYPASS not entered - 3 aborted transaction and Timeout > 0 input password length

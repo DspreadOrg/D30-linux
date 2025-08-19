@@ -74,7 +74,7 @@ int App_nInitialization()
 	DisplayInit();   //UI init
     DB_bInit(szAppId); //database init
     EmvL2_Init();   // EMV initialization
-    
+    larktms_init();
  	return 0;
 }
 

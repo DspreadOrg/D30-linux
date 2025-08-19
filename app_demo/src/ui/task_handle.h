@@ -68,6 +68,7 @@ typedef enum
     UI_APN_UISERPWD,
     UI_DISP_COMMON_MSG,
     UI_OTA_CHECK,
+    UI_OTA_HAVE_UDPATE_TASK,
 }EVENT_UI;
 
 typedef enum KB_KEYVALUE

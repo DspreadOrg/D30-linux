@@ -150,6 +150,9 @@ void event_ui_handle(uint32 event_ui_id){
 			break;
 		case UI_DISP_COMMON_MSG:
 			ui_create_disp_common_msg();
+			break;
+		case UI_OTA_HAVE_UDPATE_TASK:	
+			ui_create_update();	
 			break;	
 		case UI_OTA_CHECK:
 			ui_create_ota_check();
@@ -162,7 +165,7 @@ void event_ui_handle(uint32 event_ui_id){
 			break;
 		case UI_REMOVE_CARD:
 			ui_create_remove_card();
-			break;	
+			break;
 		default:
 			OsLog(LOG_DEBUG,"EVENT UI NOT IMPLEMENTED YET [%d]", event_ui_id );
 			break;
