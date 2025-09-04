@@ -411,7 +411,7 @@ PR_INT32 EmvL2_Proc(EmvTransParams_t emvTransParams){
 		if(ret == PR_NORMAL)
 		{
 			if(memcmp(emvOnlineData.iccResponse,"00",2) == 0 && emvOnlineData.ackdatalen > 0)
-				ret = Emv_SetOnlineResult(&emvOnlineData);
+				ret = Emv_SetOnlineResult(KERNEL_POLL_CTL_MODE,&emvOnlineData);
 		}
 
 		if(ret == PR_NORMAL)

@@ -156,6 +156,12 @@ typedef enum
 
 }EmvKernelDisp;
 
+typedef enum
+{
+	KERNEL_POLL_CTL_MODE = 0,
+	APP_POLL_CTL_MODE = 1,
+}PollCardMode;
+
 typedef struct _EmvCallBack_t
 {	
 // Multi-application selection Return value >=0 Return the selected AID serial number -1 failed
@@ -195,20 +201,17 @@ typedef enum
 // Kernel transaction type
 typedef enum
 {
-  EMV_L2_QUERY = 0,
-  EMV_L2_SALE,
-  EMV_L2_AUTH,
-  EMV_L2_EC_CASH_LOAD,
-  EMV_L2_EC_DESIGNATED_ACCOUNT_LOAD,
-  EMV_L2_EC_UNDESIGNATED_ACCOUNT_LOAD,
-  EMV_L2_EC_CASH_LOAD_VOID,
-  EMV_L2_EC_OFFLINE_BALANCE,
-  EMV_L2_SALE_LOG,
-  EMV_L2_EC_LOAD_ONE_BY_ONE_LOG,
-  EMV_L2_EC_LOAD_ALL_IN_ONE_LOG,
-  EMV_L2_SALE_VOID,
-  EMV_L2_SALE_REFUND,
+	EMV_L2_SALE 		= 0x00,  
+	EMV_CASH			= 0x01,
+	EMV_CASHBACK		= 0x09,
+	EMV_INQUIRY			= 0x31,
+	EMV_TRANFER			= 0x40,
+	EMV_ADMIN			= 0x66,
+	EMV_CASHDEPOSIT		= 0x21,
+	EMV_PAYMENT			= 0x50,
+	EMV_REFUND			= 0x20,
 }EMVTransType;
+
 
 typedef struct _EmvTransParams_t
 {
@@ -279,8 +282,12 @@ int	Emv_GetCapkTotalNum();
 unsigned long EMV_L2_GetLastError();
 
 int Emv_GetKernelVersion(EmvKernelType kernelType,unsigned char *ver);
+
+/*mode == 0:kernel mode; The kernel will control the opening of the card reader to search for the card and prompt to tap  card.
+ mode == 1:app mode The app needs to first open the card reader and prompt to tap card. Call the interface after detecting the card.
 //feturn: 0 succes  OTHER fail
-int Emv_SetOnlineResult(EmvOnlineData_t* pOnlineData);
+ */
+int Emv_SetOnlineResult(PollCardMode mode,EmvOnlineData_t* pOnlineData);
 
 #ifdef __cplusplus
 }
