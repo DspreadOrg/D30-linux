@@ -64,7 +64,56 @@ The following is a complete card transaction process, with key function codes an
 
 ## 3 TMS
 
-The demo already supports dspread tms, please refer to [ota. c]((https://github.com/DspreadOrg/D30-linux/blob/main/app_demo/src/ota/ota.c)).If TMS access and credentials are required, please contact technical personnel
+The demo already supports dspread tms,TMS supports MQTT push update task function.Please refer to [ota. c]((https://github.com/DspreadOrg/D30-linux/blob/main/app_demo/src/ota/ota.c)).If TMS access and credentials are required, please contact technical personnel
+
+```
+
+void TmsDispCallback(u32 id, char *pMsg)
+{
+    u32 i ;
+    char dispBuff[8] = {0};
+    int curValue = 0;
+    OsLog(LOG_DEBUG,"Dspread: %s:id=%d",__FUNCTION__,id);
+    switch(id)
+    {
+        case TMS_DISP_START_CHECK:
+            lv_label_set_text(tip_lable, "Ota checking...");
+            break;
+        case TMS_DISP_DOWNLOADING_PROGRESS:
+
+            curValue = atoi(pMsg);
+
+            sprintf(dispBuff,"%d%%",curValue);
+            lv_label_set_text(percentage_lable, dispBuff);
+            UpdateOTAProcess(curValue);
+            break;
+        case TMS_DISP_START_DOWNLOAD:
+            lv_label_set_text(tip_lable, "Download...");
+            break;
+        case TMS_DISP_UPGRADING:
+            lv_label_set_text(tip_lable, "Upgrading...");
+            break;
+        case TMS_DISP_HAVE_UPDATE_TASE:
+            event_ui_register(UI_OTA_HAVE_UDPATE_TASK);
+            break;
+        default:
+            break;
+    }
+}
+
+void larktms_init()
+{
+    static LarkTmsCallBack_t larktmsCbk;
+    larktmsCbk.ssl_connect = ssl_server_connect;
+    larktmsCbk.ssl_disconnect= ssl_server_disconnect;
+    larktmsCbk.ssl_send = ssl_send_msg;
+    larktmsCbk.ssl_recv = ssl_recv_msg;
+
+    larktms_service_start(&larktmsCbk,TmsDispCallback,TMS_FW_HEART_CUSTOM_URL,APP_VERSION);
+}
+```
+
+'larktms_service_start'  will start a tms mqtt thread.
 
 ## 4.LinuxSdk Api
 
@@ -74,7 +123,7 @@ The demo already supports dspread tms, please refer to [ota. c]((https://github.
 
 lvgl_main() is the main thread. Be used to drawing UI
 
-```main.c ui_main.c
+```main.c
 int main(int argc, char *argv[])
 {
     int ret;
@@ -91,8 +140,8 @@ void lvgl_main()
     queue_message_body_t queMsg;
 
     lv_init();
-	lv_port_disp_init();
-	lv_port_indev_init();
+    lv_port_disp_init();
+    lv_port_indev_init();
     lvgl_queue_init();
     ui_lvgl_style_init();
     backgroundthread_init();
@@ -110,7 +159,7 @@ void lvgl_main()
         lv_timer_handler();
         OsSleep(5);
     }
-    
+
 }
 ```
 
@@ -121,39 +170,39 @@ This thread is used to execute transactions or perform time-consuming operations
 ```ui_main.c
 void *event_trans_thread(void *args)
 {
-	message_body_t msg;
-	int ret = 0;
+    message_body_t msg;
+    int ret = 0;
 
-	key_t key;
-	char *file = "/tmp/event_msg";
-	FILE *fp = fopen(file, "w");
-	if (fp != NULL)
-	{
-		fclose(fp);
-	}
+    key_t key;
+    char *file = "/tmp/event_msg";
+    FILE *fp = fopen(file, "w");
+    if (fp != NULL)
+    {
+        fclose(fp);
+    }
 
     // Create a unique key
     key = ftok("/tmp/event_msg", 'm');
     if (key == -1) {
-		return NULL;
+        return NULL;
     }
 
-	    // Create a message queue
+        // Create a message queue
     Event_Queue_Id = msgget(key, IPC_CREAT | 0666);
     if (Event_Queue_Id == -1) {
         DSP_Info("Event_Queue_Id create failed");
-		return NULL;
+        return NULL;
     }
     while(1)
     {
-		memset(&msg,0,sizeof(message_body_t));
-		ret = -1;
-		ret = msgrcv(Event_Queue_Id, &msg, sizeof(message_body_t), 0, 0);
-		if (ret != -1)
-		{
-			event_trans_handle(msg.msg_id);
-			event_thread_mutex(MUTEX_OFF);	
-		}
+        memset(&msg,0,sizeof(message_body_t));
+        ret = -1;
+        ret = msgrcv(Event_Queue_Id, &msg, sizeof(message_body_t), 0, 0);
+        if (ret != -1)
+        {
+            event_trans_handle(msg.msg_id);
+            event_thread_mutex(MUTEX_OFF);    
+        }
         OsSleep(10);
     }
 
@@ -167,12 +216,15 @@ Below are the initialization and startup functions related to EMV.
 ```emvlmpl.c
 static void Initialize_EMV_CallBackFun(EmvCallBack_t *pcallbackfun)
 {
-	pcallbackfun->EMV_AidSelect = aidSelect;
-	pcallbackfun->EMV_ConfirmCardInfo = confirmCardInfo;
-	pcallbackfun->EMV_InputPasswd = inputPasswd;
-	pcallbackfun->EMV_CertConfirm = certConfirm;
-	pcallbackfun->EMV_ProcessDisp = emv_process_disp;
-	pcallbackfun->EMV_OnlineProcess = onlineProcess;
+    pcallbackfun->EMV_AidSelect = aidSelect;
+    pcallbackfun->EMV_ConfirmCardInfo = confirmCardInfo;
+    pcallbackfun->EMV_InputPasswd = inputPasswd;
+    pcallbackfun->EMV_CertConfirm = certConfirm;
+    pcallbackfun->EMV_ProcessDisp = emv_process_disp;
+    pcallbackfun->EMV_OnlineProcess = onlineProcess;
+    pcallbackfun->EMV_AfterSelectApp = NULL;
+    pcallbackfun->EMV_AfterReadRecord = NULL;
+    pcallbackfun->EMV_SetKernelId = NULL;
 }
 
 PR_INT32 EmvL2_Init(){
@@ -202,25 +254,25 @@ During the processing of EMV transactions, the following callback functions may 
 int emv_process_disp(EmvKernelDisp type)
 {
 
-	switch (type)
-	{
-	case EMV_DISP_READING_CARD:
-		event_ui_register(UI_READ_ICCARD);
-		break;
-	case EMV_DISP_SEE_PHONE:
-		event_ui_register(UI_SEE_PHONE);
-		OsSleep(5000);
-		break;
-	case EMV_DISP_REMOVE_CARD:
-		event_ui_register(UI_REMOVE_CARD);
-		break;
-	case EMV_DISP_NFC_RETAP:
-		event_ui_register(UI_NFC_RETAP);
-		break;
-	default:
-		break;
-	}
-	return 0;
+    switch (type)
+    {
+    case EMV_DISP_READING_CARD:
+        event_ui_register(UI_READ_ICCARD);
+        break;
+    case EMV_DISP_SEE_PHONE:
+        event_ui_register(UI_SEE_PHONE);
+        OsSleep(5000);
+        break;
+    case EMV_DISP_REMOVE_CARD:
+        event_ui_register(UI_REMOVE_CARD);
+        break;
+    case EMV_DISP_NFC_RETAP:
+        event_ui_register(UI_NFC_RETAP);
+        break;
+    default:
+        break;
+    }
+    return 0;
 } 
 ```
 
@@ -228,52 +280,52 @@ inputPasswd() is the emv callback for pin.It includes both online and offline pi
 
 ```
 int inputPasswd(int type, char *pszPin){
-	int ret ;
-	unsigned char pinKsn[16] = {0};
-	
-	if(type == EMV_ONLINEPIN_INPUT)
-	{
-		get_transaction_data()->emv_emter_online_pin_result =0xFF;
-		event_ui_register(UI_ENTER_ONLINE_PIN);
-		ret = OsPedOpen();
-		if(ret != RET_OK)
-		{
-			return PR_FAILD;
-		}
+    int ret ;
+    unsigned char pinKsn[16] = {0};
 
-		ret = OsPedIncreaseKsnDukpt(PED_PIN_IPEK_INDEX);
-		if(ret != RET_OK){
-			OsCloseSoftKeyboard ();
-			return PR_FAILD;
-		}
-		ret = OsPedGetPinBlockDukptBySoftKeyboard(PED_PIN_IPEK_INDEX,get_transaction_data()->sCardNo, 4, 6, 60*1000,get_transaction_data()->sPinKsn, pszPin,disp_mask_pin);
-		OsLog(LOG_DEBUG,"--------OsPedGetPinBlockDukptBySoftKeyboard ret = %d",ret);
-		OsCloseSoftKeyboard ();
-		if(ret == RET_OK)
-		{
-			get_transaction_data()->emv_emter_online_pin_result = 1;
-			memcpy(get_transaction_data()->sPin,pszPin,8);
-		}
-	}
-	else
-	{
-		event_ui_register(UI_ENTER_OFFLINE_PIN);
-		get_transaction_data()->emv_enter_offline_pin_result = 0xFF;
-		while(get_transaction_data()->emv_enter_offline_pin_result == 0xFF)
-		{
-			OsSleep(100);
-		}
-	
-		if(get_transaction_data()->emv_enter_offline_pin_result == 0) //offline pin enter
-		{
-			memcpy(pszPin,get_transaction_data()->sPin,strlen(get_transaction_data()->sPin));
-			ret = strlen(get_transaction_data()->sPin);
-		}
-		else
-		{
-			ret = -1;
-		}
-	}
+    if(type == EMV_ONLINEPIN_INPUT)
+    {
+        get_transaction_data()->emv_emter_online_pin_result =0xFF;
+        event_ui_register(UI_ENTER_ONLINE_PIN);
+        ret = OsPedOpen();
+        if(ret != RET_OK)
+        {
+            return PR_FAILD;
+        }
+
+        ret = OsPedIncreaseKsnDukpt(PED_PIN_IPEK_INDEX);
+        if(ret != RET_OK){
+            OsCloseSoftKeyboard ();
+            return PR_FAILD;
+        }
+        ret = OsPedGetPinBlockDukptBySoftKeyboard(PED_PIN_IPEK_INDEX,get_transaction_data()->sCardNo, 4, 6, 60*1000,get_transaction_data()->sPinKsn, pszPin,disp_mask_pin);
+        OsLog(LOG_DEBUG,"--------OsPedGetPinBlockDukptBySoftKeyboard ret = %d",ret);
+        OsCloseSoftKeyboard ();
+        if(ret == RET_OK)
+        {
+            get_transaction_data()->emv_emter_online_pin_result = 1;
+            memcpy(get_transaction_data()->sPin,pszPin,8);
+        }
+    }
+    else
+    {
+        event_ui_register(UI_ENTER_OFFLINE_PIN);
+        get_transaction_data()->emv_enter_offline_pin_result = 0xFF;
+        while(get_transaction_data()->emv_enter_offline_pin_result == 0xFF)
+        {
+            OsSleep(100);
+        }
+
+        if(get_transaction_data()->emv_enter_offline_pin_result == 0) //offline pin enter
+        {
+            memcpy(pszPin,get_transaction_data()->sPin,strlen(get_transaction_data()->sPin));
+            ret = strlen(get_transaction_data()->sPin);
+        }
+        else
+        {
+            ret = -1;
+        }
+    }
     return ret;
 }
 ```
@@ -283,14 +335,14 @@ aidSelect() is the emv callback for application selection.
 ```
 int aidSelect(AidCandidate_t *pList, int listNum){
 
-	unpackAppsName(listNum,pList);
-	event_ui_register(UI_MULTI_APP_SELECT);
-	get_transaction_data()->emv_multi_app_select_result = 0xFF;
-	while(get_transaction_data()->emv_multi_app_select_result == 0xFF)
-	{
-		OsSleep(100);
-	}
-	event_ui_register(UI_READ_ICCARD);
+    unpackAppsName(listNum,pList);
+    event_ui_register(UI_MULTI_APP_SELECT);
+    get_transaction_data()->emv_multi_app_select_result = 0xFF;
+    while(get_transaction_data()->emv_multi_app_select_result == 0xFF)
+    {
+        OsSleep(100);
+    }
+    event_ui_register(UI_READ_ICCARD);
     return get_transaction_data()->emv_multi_app_select_result;
 }
 ```
@@ -299,9 +351,9 @@ onlineProcess() is the emv callback for online request.
 
 ```
 int onlineProcess(EmvOnlineData_t* pOnlineData){
-	event_ui_register(UI_PROCESSING);
-	Emv_GetCardInfo(get_transaction_data());
-	sale_online_request(pOnlineData);
+    event_ui_register(UI_PROCESSING);
+    Emv_GetCardInfo(get_transaction_data());
+    sale_online_request(pOnlineData);
     return PR_NORMAL;
 }
 ```
@@ -312,31 +364,77 @@ When the EMV trading process is completed, the following results will be obtaine
 // emv transaction return value
 typedef enum
 {
-	APP_RC_START = -1,
-	APP_RC_COMPLETED = 0,
-	APP_RC_TERMINAL,
-	APP_RC_CANCEL,
-	APP_RC_EMV_DENAIL,
-	APP_RC_EMV_GAC2_DENAIL,
-	APP_RC_NFC_NOT_ALLOW,
-	APP_RC_EMV_APP_BLOCK,
-	APP_RC_EMV_APP_SEE_PHONE,
-	APP_RC_EMV_TRANS_TRY_ANOTHER_INTERFACE,
-	APP_RC_EMV_TRANS_GPO_NOT_SUPPORT,
-	APP_RC_FALL_BACK,
-	APP_RC_EMV_CARD_BLOCK,
-	APP_RC_CARD_NOT_SUPPORT,
+    APP_RC_START = -1,
+    APP_RC_COMPLETED = 0,
+    APP_RC_TERMINAL,
+    APP_RC_CANCEL,
+    APP_RC_EMV_DENAIL,
+    APP_RC_EMV_GAC2_DENAIL,
+    APP_RC_NFC_NOT_ALLOW,
+    APP_RC_EMV_APP_BLOCK,
+    APP_RC_EMV_APP_SEE_PHONE,
+    APP_RC_EMV_TRANS_TRY_ANOTHER_INTERFACE,
+    APP_RC_EMV_TRANS_GPO_NOT_SUPPORT,
+    APP_RC_FALL_BACK,
+    APP_RC_EMV_CARD_BLOCK,
+    APP_RC_CARD_NOT_SUPPORT,
 
-	APP_RC_NFC_RETAP_TIMEOUT,
-	APP_RC_NFC_RETAP_CANCEL,
-	APP_RC_NFC_TERMINAL,
-	APP_RC_NFC_DOUBLETAP_DENAIL,
-	APP_RC_NFC_MULTI_CARD,
-	APP_RC_NFC_TRY_AGAIN,
-	APP_RC_TRANS_REVERSEL,
-	APP_RC_NUMS,
+    APP_RC_NFC_RETAP_TIMEOUT,
+    APP_RC_NFC_RETAP_CANCEL,
+    APP_RC_NFC_TERMINAL,
+    APP_RC_NFC_DOUBLETAP_DENAIL,
+    APP_RC_NFC_MULTI_CARD,
+    APP_RC_NFC_TRY_AGAIN,
+    APP_RC_TRANS_REVERSEL,
+    APP_RC_NUMS,
 }EMV_L2_Return;
 ```
+
+When executing the issuer script during the contactless transaction process, it is necessary to call 'Emv_SetOnlineResult' api.Please note 'APP_POLL_CTL_MODE' or 'KERNEL_POLL_CTL_MODE' will control the card search mode
+
+```
+PR_INT32 EmvL2_Proc(EmvTransParams_t emvTransParams){
+    EMV_L2_Return nEmvRet = APP_RC_START;
+    int ret = PR_FAILD;
+
+    nEmvRet = Emv_Process(emvTransParams);
+    if(emvTransParams.icc_type == CONTACTLESS_ICC && nEmvRet == APP_RC_COMPLETED)
+    {
+        // do contactless trans online request
+        EmvOnlineData_t emvOnlineData;
+        memset(&emvOnlineData,0,sizeof(EmvOnlineData_t));
+        ret = onlineProcess(&emvOnlineData);
+        if(ret == PR_NORMAL)
+        {
+            if(memcmp(emvOnlineData.iccResponse,"00",2) == 0 && emvOnlineData.ackdatalen > 0)
+                ret = Emv_SetOnlineResult(KERNEL_POLL_CTL_MODE,&emvOnlineData);
+        }
+
+        if(ret == PR_NORMAL)
+            nEmvRet = APP_RC_COMPLETED;
+        else
+            nEmvRet = APP_RC_TERMINAL;
+    }
+    return nEmvRet;
+}
+```
+
+
+
+If you have special requirements during EMV trading, you can complete them through the following three callback functions
+
+```
+    pcallbackfun->EMV_SetKernelId = updateKernelId;
+```
+
+Forcefully modify the kernel that needs to be executed
+
+```
+pcallbackfun->EMV_AfterSelectApp = updateTagAfterSelectApp;
+pcallbackfun->EMV_AfterReadRecord = updateTagAfterRea
+```
+
+Force modification of TAG values
 
 ### 4.3 Network Api
 
@@ -446,7 +544,7 @@ int sale_online_request(EmvOnlineData_t* pOnlineData)
     OsLog(LOG_DEBUG,"body[%d] \n %s",bodyLen,body);
 
     RequestPackHttpFrame(body,URL_TEST,"POST",pSend,NULL,SERVER_REQUEST_LENGTH);
-    
+
 
     pRecv=(pu8)malloc(SERVER_RECV_LENGTH);
     memset(pRecv,0,SERVER_RECV_LENGTH);
@@ -467,7 +565,7 @@ int sale_online_request(EmvOnlineData_t* pOnlineData)
             //example 91081111111111111111111111 
             // nAsc2Bcd("91081111111111111111",10,pOnlineData->ackdata,0);
             // pOnlineData->ackdatalen = strlen("91081111111111111111")/2;
-    
+
             ret = RET_OK;
             goto exit;
         #endif
@@ -477,7 +575,7 @@ int sale_online_request(EmvOnlineData_t* pOnlineData)
         // setEmvResponse(pTradingFile,RC_ONLINE_DECLINE);
         ret = RecvLen;
     }
-    
+
 exit:    
     free(pSend);
     free(pRecv);
@@ -546,7 +644,7 @@ s32 RequestHttpTransmit(char * pSend,u32 SendLen, char * pURL,u32 port, char * p
         ret = -99;
         goto RequestHttpTransmit_end;
     }
-        
+
     Length = ssl_recv_msg(pReceived,FrameLengthMax,ONLINE_REQUEST_TIMEOUT);    
 
      if(Length<0)
@@ -568,7 +666,7 @@ s32 RequestHttpTransmit(char * pSend,u32 SendLen, char * pURL,u32 port, char * p
             #endif
         }
 
-        
+
     }
 RequestHttpTransmit_end:
 
