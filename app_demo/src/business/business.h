@@ -86,6 +86,9 @@ void stop_readcards();
 void start_print();
 
 void start_print_record();
+
+int get_app_status();
+void set_app_status(int status);
 #ifdef __cplusplus
 }
 #endif

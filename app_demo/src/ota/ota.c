@@ -111,7 +111,8 @@ void TmsDispCallback(u32 id, char *pMsg)
             lv_label_set_text(tip_lable, "Upgrading...");
             break;
         case TMS_DISP_HAVE_UPDATE_TASE:
-            event_ui_register(UI_OTA_HAVE_UDPATE_TASK);
+            if(0 == get_app_status())  // Receive TMS task notifications when the APP is idle
+                event_ui_register(UI_OTA_HAVE_UDPATE_TASK);
             break;
         default:
             break;

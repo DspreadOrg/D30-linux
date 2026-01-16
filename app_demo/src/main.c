@@ -1,6 +1,6 @@
 #include "appinc.h"
 #include <signal.h>
-
+#include "ntp.h"
 void sigHandle(int sig)
 {
     switch (sig) {
@@ -75,6 +75,7 @@ int App_nInitialization()
     DB_bInit(szAppId); //database init
     EmvL2_Init();   // EMV initialization
     larktms_init();
+    Ntp_TimeSync_Proc();
  	return 0;
 }
 

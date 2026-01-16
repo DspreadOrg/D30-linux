@@ -274,6 +274,8 @@ void lvgl_MainMenu()
     lv_obj_clean(Main_Panel);
     lv_group_remove_all_objs(group_keypad_indev);
 
+    set_app_status(0); //APP IDLE
+
     OsCloseCamera();
     resumeStatusBarIcon();
 

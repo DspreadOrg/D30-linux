@@ -96,7 +96,7 @@ void ui_create_about() {
     }
     lv_span_t * span12 = lv_spangroup_new_span(content_label);
     if (span12) {
-        lv_span_set_text(span12, "\nLinux");
+        lv_span_set_text(span12, "\nLinux 4.9.84");
         lv_style_set_text_font(&span12->style, &ali_middle_24);               // Set Span Text Style
         lv_style_set_text_color(&span12->style, lv_color_hex(0x008CFF));     // Set Span text color
     }

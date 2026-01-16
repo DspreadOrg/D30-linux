@@ -5,6 +5,8 @@ TransactionData g_transactionData;
 extern ONLINE_STATUS onlineStatus;
 static int stop_read_cards = 0;
 
+static int g_app_status = 0; // 0 App idle   1 App busy 
+
 #ifdef CFG_DBG
 static const char *EMV_RETURN_CODE[] =
 {
@@ -32,7 +34,13 @@ static const char *EMV_RETURN_CODE[] =
 };
 #endif
 
+int get_app_status(){
+    return g_app_status;
+}
 
+void set_app_status(int status){ 
+    g_app_status = status;
+}
 
 KB_KEYMAP_T KB_nWaitKeyMS(Int32 MS)
 {
@@ -244,6 +252,7 @@ void* thread_function(void* arg) {
 }
 
 void sale_init(){
+    set_app_status(1); //APP BUSY
     clear_transaction_data();
 
     g_transactionData.nTransType = TT_SALE;

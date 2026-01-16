@@ -147,7 +147,7 @@ int sale_online_request(EmvOnlineData_t* pOnlineData)
     }
     else
     {
-        ret = PR_FAILD;
+        ret = RecvLen;
     }
     
 exit:    
