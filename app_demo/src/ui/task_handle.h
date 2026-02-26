@@ -15,6 +15,7 @@ typedef enum
     EVENT_WIFI_CONNECT,
     EVENT_OTA_CHECK,
     EVENT_APN_SET,
+    EVENT_QR_PAYMENT,
 }EVENT_TRANS;
 
 typedef enum

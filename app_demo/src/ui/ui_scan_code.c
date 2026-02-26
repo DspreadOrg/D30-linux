@@ -1,5 +1,7 @@
 #include "appinc.h"
 static lv_timer_t *result_timer;
+
+
 static void touch_key_event_cb(lv_event_t * e)
 {
     int keyCode;
@@ -10,7 +12,7 @@ static void touch_key_event_cb(lv_event_t * e)
         keyCode = lv_event_get_key(e);
         switch(keyCode){
             case KB_KEY_CANCEL://cancel
-                OsCloseCamera();
+                PubcloseCamera();
                 if (result_timer != NULL )
                 {
                     lv_timer_del(result_timer);
@@ -25,7 +27,7 @@ static void touch_key_event_cb(lv_event_t * e)
         keyCode = atoi(index);
         switch(keyCode){
             case 9: //cancel
-                OsCloseCamera();
+                PubcloseCamera();
                 if (result_timer != NULL )
                 {
                     lv_timer_del(result_timer);
@@ -51,10 +53,11 @@ static void scan_qrcode_process_cb(lv_timer_t *timer){
             lv_timer_del(result_timer);
             result_timer = NULL;
         }
-        OsCloseCamera();
+        PubcloseCamera();
         lv_obj_set_style_bg_opa(src_Panel, LV_OPA_COVER, LV_PART_MAIN);//Set screen transparency
         lv_obj_set_style_bg_opa(Main_Panel, LV_OPA_COVER, LV_PART_MAIN);//Set screen transparency
         event_ui_register(UI_PROCESSING);
+        event_trans_register(EVENT_QR_PAYMENT);
     }else{
         if (timer_count >= 600) {
             if (result_timer != NULL )
@@ -62,7 +65,7 @@ static void scan_qrcode_process_cb(lv_timer_t *timer){
                 lv_timer_del(result_timer);
                 result_timer = NULL;
             }
-            OsCloseCamera();
+            PubcloseCamera();
             lv_obj_set_style_bg_opa(src_Panel, LV_OPA_COVER, LV_PART_MAIN);//Set screen transparency
             lv_obj_set_style_bg_opa(Main_Panel, LV_OPA_COVER, LV_PART_MAIN);//Set screen transparency
             set_fail_msg("Scan Code Timeout");
@@ -92,9 +95,6 @@ void ui_create_scan_code() {
     int nAmount = atoi(get_transaction_data()->sAmount);
     sprintf(szDisplayAmount,"total $%ld.%02ld",nAmount/100,nAmount%100);
     timer_count = 0;
-
-    // pthread_t thread_id;
-    // pthread_create(&thread_id, NULL, thread_function, NULL);
 
     lv_timer_enable(false);
     lv_obj_clean(Main_Panel);

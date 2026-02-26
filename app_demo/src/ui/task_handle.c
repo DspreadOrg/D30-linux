@@ -35,7 +35,10 @@ void event_trans_handle(uint32 event_trans_id)
 			break;	
 		case EVENT_OTA_CHECK:
 			ota_process();
-			break;			
+			break;
+		case EVENT_QR_PAYMENT:
+			qr_payment();
+			break;				
         default:
 			OsLog(LOG_DEBUG,"EVENT TRANS NOT IMPLEMENTED YET [%d]", event_trans_id );
             break;

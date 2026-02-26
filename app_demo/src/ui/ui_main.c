@@ -275,8 +275,7 @@ void lvgl_MainMenu()
     lv_group_remove_all_objs(group_keypad_indev);
 
     set_app_status(0); //APP IDLE
-
-    OsCloseCamera();
+    PubcloseCamera();
     resumeStatusBarIcon();
 
     lv_obj_t *msg_card = lv_obj_create(Main_Panel);
@@ -426,8 +425,10 @@ void lvgl_MainMenu()
     lv_obj_align(msg_label2, LV_ALIGN_BOTTOM_MID, 0, -80);
     lv_obj_set_style_text_color(msg_label2, lv_palette_lighten(LV_PALETTE_GREY, 1), 0);
 
+    unsigned char fw_ver[32] = {0};
+    OsGetSysVersion(0x01,fw_ver);
     lv_obj_t *msg_label3 = lv_label_create(Main_Panel);
-    lv_label_set_text_fmt(msg_label3, "App: %s|OS: Linux",APP_VERSION);
+    lv_label_set_text_fmt(msg_label3, "App: %s | Fw: %s",APP_VERSION,fw_ver);
     lv_obj_set_style_text_font(msg_label3, &ali_middle_18, 0);
     lv_obj_align(msg_label3, LV_ALIGN_BOTTOM_MID, 0, -50);
     lv_obj_set_style_text_color(msg_label3, lv_palette_lighten(LV_PALETTE_GREY, 1), 0);

@@ -40,6 +40,7 @@ typedef enum
         TT_AUTH_SETTLEMENT,		// Authorization completion (notification)
         TT_AUTH_COMPLETE,		// Authorization completion (request)
         TT_AUTH_COMPLETE_VOID,	// Authorization completion void
+        TT_QR_PAYMENT,
         TT_MAX,
         TT_INVALID = TT_MAX,
 }TransactionType_T;
@@ -89,6 +90,8 @@ void start_print_record();
 
 int get_app_status();
 void set_app_status(int status);
+void PubcloseCamera();
+void qr_payment();
 #ifdef __cplusplus
 }
 #endif

@@ -74,7 +74,6 @@ lv_obj_t * ui_lvgl_menubtn_creat(lv_obj_t *parent,int w, int h,char* text,unsign
 
 void ui_lvgl_page_construct(char *str_title, lv_event_cb_t event_cb)
 {
-    OsLog(LOG_DEBUG,"ui_create_waters" );
     lv_timer_enable(false);
     lv_obj_clean(Main_Panel);
     lv_group_remove_all_objs(group_keypad_indev);
@@ -105,7 +104,6 @@ void ui_lvgl_page_construct(char *str_title, lv_event_cb_t event_cb)
 
 void ui_lvgl_page_construct_v2(lv_obj_t * obj,char *str_title, lv_event_cb_t event_cb)
 {
-    OsLog(LOG_DEBUG,"ui_create_waters" );
     lv_timer_enable(false);
     lv_obj_clean(obj);
     lv_group_remove_all_objs(group_keypad_indev);

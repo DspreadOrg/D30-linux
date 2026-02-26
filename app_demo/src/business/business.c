@@ -251,6 +251,17 @@ void* thread_function(void* arg) {
     return NULL;
 }
 
+void* thread_closeCamera(void* arg) {
+    OsCloseCamera();
+    return NULL;
+}
+
+void PubcloseCamera()
+{ 
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, thread_closeCamera, NULL);
+}
+
 void sale_init(){
     set_app_status(1); //APP BUSY
     clear_transaction_data();
@@ -363,4 +374,10 @@ void start_print(){
 
 void start_print_record(){
     PrintOrder(1,&stTransactionRecord);
+}
+
+void qr_payment(){ 
+    g_transactionData.nTransType = TT_QR_PAYMENT;
+    OsSleep(3000);
+    event_ui_register(UI_RESULT_SUCCESS);
 }
