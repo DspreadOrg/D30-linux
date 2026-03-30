@@ -25,6 +25,7 @@ enum TMS_ERR_RCODE {
     TMS_ERR_CONNECT   = -2,
     TMS_ERR_NO_AVAIALABLE = -3,
     TMS_ERR_SN_NOT_REGISTER = -4,
+    TMS_ERR_TASK_INVALID = -5,
 };
 
 

@@ -1,0 +1,15 @@
+{
+	"fileName": "dspread_resource_V1.0.5.zip",
+	"packageType": "CUST",
+	"supportVersion": ".*",
+	"md5": "a186bb9c9d88bd5f939f1e301172a6ea",
+	"desc": "update",
+	"platformVersion": 3,
+	"version": "V1.0.5",
+	"diffType": 1,
+	"customerVersion": "0.0.0",
+	"customerName": "DSPREAD",
+	"machineType": "D30L",
+	"hardwarePlatform": "M",
+	"osVersion": "Q"
+}

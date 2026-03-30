@@ -40,4 +40,4 @@ add_executable( ${PROJECT_NAME} ${SRCS})
 
 # Link dynamic libraries
 # target_link_libraries(${PROJECT_NAME} PUBLIC binder log pos_sdk pthread dl iconv crypto ssl sqlite3 pos_devapi posmui mxml rt xutilmate APHLang freetype Common qUICS UICS)
-target_link_libraries(${PROJECT_NAME} PUBLIC binder log pos_sdk pthread dl iconv crypto ssl sqlite3 pos_devapi posmui mxml rt xutilmate freetype APHLang asound kernel emvl2 entrypoint amex bancomat dpas jcb paypass paywave pure quics rupay mir interac kernelins MQTT)
+target_link_libraries(${PROJECT_NAME} PUBLIC binder log pos_sdk pthread dl iconv crypto ssl sqlite3 pos_devapi posmui mxml rt xutilmate freetype APHLang asound kernel emvl2 entrypoint amex bancomat dpas jcb paypass paywave pure quics rupay mir interac SDK MQTT get_xml z)

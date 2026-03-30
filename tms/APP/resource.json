@@ -1,0 +1,15 @@
+{
+	"fileName": "D30_Linux_App_Demo_V1.0.6.apk",
+	"packageType": "AP",
+	"supportVersion": ".*",
+	"md5": "f16ee2f73a31a0983e080ff390e5a3d2",
+	"desc": "update",
+	"platformVersion": 3,
+	"version": "V1.0.6",
+	"diffType": 1,
+	"customerVersion": "0.0.0",
+	"customerName": "DSPREAD",
+	"machineType": "D30L",
+	"hardwarePlatform": "M",
+	"osVersion": "Q"
+}

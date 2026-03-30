@@ -248,6 +248,8 @@ extern pu8 tlv_get_first_child_(pu8 pTlvData);
 extern pu8 tlv_get_next_child_(pu8 pTlvData);
 extern u32 tlv_batch_move_(pu8 pTlvData, pu8 pTlvDstData);
 
+extern void getSDKVersion(pu8 ver);
+
 #ifdef __cplusplus
 }
 #endif
