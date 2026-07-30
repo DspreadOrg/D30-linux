@@ -915,6 +915,13 @@ void OsPrnSetGray(int Level);
  * 6. The parameter value is illegal and does not change the current setting.
  */
 void OsPrnSetSpace(int CharSpace, int LineSpace);
+/*
+* Function Set the printing mode.
+* Parameter iValue
+  1:Supports left and right alignment within the same line. Each line must end with '\n'  "123445\n"
+  0:Doesn't support left-right alignment on the same line
+*/
+int OsPrnComplexMode(int iValue);
 
 /*
  * Function Set the font inverting attribute, and print normally by default.
@@ -947,8 +954,12 @@ int OsPrnSetIndent (unsigned int Left, unsigned int Right);
  * ERR_PRN_OVERHEAT The printer is overheated
  */
 int OsPrnCheck(void);
-
-
+/*
+* Function Set the font file.
+* parameter
+    fontPath【Input】Font file path
+*/
+int OsPrnSetFont(const char*fontPath);
 /*
  * Function Set printing parameters.Customize
  * parameter

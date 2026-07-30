@@ -457,7 +457,7 @@ PR_INT32 PR_nMaskCardNo(const PR_INT8* szInput, const PR_INT8* pszCardNOOutput)
 }
 
 
-
+#if 1
 PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
 {
     PR_INT32 ret;
@@ -479,10 +479,6 @@ PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
     for(int i = 0;i< nCount;i++){
         OsPrnReset();
         Business_getAppPath(AppPath,sizeof(AppPath));
-// sprintf(FilePath,"%s/res/CLOUDCODE.bmp",AppPath);
-// sprintf(FilePath,"%s/res/yl.bmp",AppPath);
-// OsLog(LOG_WARN,"bmp path： %s",FilePath);
-// OsPrnPutImage((unsigned char *)FilePath);
 
 		OsPrnSetPrintParams(24,1,2,ALIGN_TYPE_CENTER);
 		OsPrnPrintf((char *)"POS Purchase Order");
@@ -590,7 +586,152 @@ exit:
 	remove(FilePath);
     return ret;
 }
+#else
+PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
+{
+    PR_INT32 ret;
+    PR_INT8 temp[256];
+    PR_INT8 displayAmount[16] = {0};
+    PR_INT8 FilePath[128] = {0};
+	PR_INT8 AppPath[128] = {0};
+   
+    ret = OsPrnOpen(PRN_REAL,NULL);
+    if(ret != RET_OK){
+        return ret;
+    }
+    ret = OsPrnCheck();
+    if( ret != RET_OK){
+        DSP_Info(ret == ERR_PRN_BUSY?(char*)"Printer Busy":
+                    ret == ERR_PRN_PAPEROUT?(char*)"Printer Paper Out":
+                    ret == ERR_PRN_OVERHEAT?(char*)"Printer Overheat":
+                    ret == ERR_PRN_OVERVOLTAGE?(char*)"Printer Overvoltage ":
+					ret == ERR_BATTERY_VOLTAGE_TOO_LOW?(char*)"Printer Voltage Too Low":(char*)"Printer Exception");
+        goto exit;
+    }
+	Business_getAppPath(AppPath,sizeof(AppPath));
+    for(int i = 0;i< nCount;i++){
+        OsPrnReset();
+		OsPrnSetGray(1);
+		OsPrnSetSpace(0,1);
+		OsPrnComplexMode(1);
+		memset(FilePath,0x0,sizeof(FilePath));
+		sprintf(FilePath,"%s/res/Vazirmatn.ttf",AppPath);
+    	OsPrnSetFont(FilePath);
+		// OsPrnSetReversal(2);
+		OsPrnSetPrintParams(24,1,2,ALIGN_TYPE_CENTER);
+		OsPrnPrintf((char *)"POS Purchase Order\n");
+        OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_RIGHT);
+        OsPrnPrintf((char *)"MERCHANT COPY\n");
+		// OsPrnSetReversal(1);
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"MERCHANT NAME\n");
+        OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"CloudCode\n");
+		OsPrnSetReversal(0);
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"MERCHANT NO\n",0,0);
+        OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"886043482133343\n");
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"TERMINAL NO");
+		OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_RIGHT);
+        OsPrnPrintf((char *)"OPERATOR NO\n");
+        OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"157345768");
+		OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_RIGHT);
+        OsPrnPrintf((char *)"01\n");
+		if (get_transaction_data()->nPosEntryMode != INPUT_QRCODE && get_transaction_data()->nPosEntryMode != INPUT_SCANCODE)
+		{
+			OsPrnSetPrintParamsEx(24,1,1,ALIGN_TYPE_RIGHT,1);
+			OsPrnPrintf((char *)"شماره کارت:");
+			OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_LEFT);
+			memset(temp,0x0,sizeof(temp));
+			// strcat(temp,pTxnRec->sCardNo);		//org unknow
+			strcat(temp,"6228 ****** 123\n");
+			OsPrnPrintf(temp);
+		}
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"TRANS TYPE\n");
+        OsPrnSetPrintParams(24,2,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"SALE\n");
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"EXP DATE\n");
+        OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"2024/02\n");
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"BATCH NO");
+		OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_RIGHT);
+        OsPrnPrintf((char *)"VUCHER NO\n");
+        OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_LEFT);
+        memset(temp,0x0,sizeof(temp));
+        sprintf(temp,"%s",pTxnRec->sTrace);
+        OsPrnPrintf(temp);
+		OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_RIGHT);
+        memset(temp,0x0,sizeof(temp));
+        sprintf(temp,"%s\n",pTxnRec->sBatch);
+        OsPrnPrintf(temp);
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"DATE/TIME");
+        OsPrnSetPrintParams(24,1,1,ALIGN_TYPE_RIGHT);
+        OsPrnPrintf("%s\n",(char *)pTxnRec->sTransTime);
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"AMOUNT\n");
+        OsPrnSetPrintParams(24,1,2,ALIGN_TYPE_LEFT);
+        memset(temp,0x0,sizeof(temp));
+        PR_nUtilNumberToAmt(pTxnRec->sAmount,sizeof(displayAmount),displayAmount);
+        sprintf(temp,"%s\n",displayAmount);
+        OsPrnPrintf((char *)temp);
+        OsPrnSetPrintParams(16,1,1,ALIGN_TYPE_LEFT);
+        OsPrnPrintf((char *)"REFERENCE\n");
+		if (get_transaction_data()->nPosEntryMode != INPUT_QRCODE && get_transaction_data()->nPosEntryMode != INPUT_SCANCODE)
+		{
+			sprintf(FilePath,"%s/res/%s.bmp",AppPath,pTxnRec->sTrace);
+			OsLog(LOG_WARN,"bmp path: %s",FilePath);
+			// if(pTxnRec->signatureFlag){
+			//     OsPrnPutElecSignDataByJpg();
+			if (access(FilePath, F_OK) == 0){
+				OsPrnPutImage((unsigned char *)FilePath);
+			}else{
+				OsPrnPrintf((char *)"CARDHOLDER SIGNATURE\n");
+				OsPrnPrintf((char *)" \n");// 5line
+				OsPrnPrintf((char *)" \n");// 5line
+				OsPrnPrintf((char *)" \n");// 5line
+				OsPrnPrintf((char *)" \n");// 5line
+				OsPrnPrintf((char *)" \n");// 5line
+			}
+		}
+        
+        OsPrnPrintf((char *)"I ACKNOWLEDGE SATISFACTORY RECEIPT OF\nFELATIUE GOODS/SERVICES\n");
+		OsPrnSetPrintParamsEx(32,1,1,ALIGN_TYPE_CENTER,1);
+		OsPrnPrintf((char *)"بازرگانبازرگا\n");
+        OsPrnSetPrintParamsEx(32,1,1,ALIGN_TYPE_RIGHT,1);
+		OsPrnPrintf((char *)"بازرگان");
+		OsPrnSetPrintParamsEx(32,1,1,ALIGN_TYPE_LEFT,1);
+		OsPrnPrintf((char *)"مشتری\n");
+		OsPrnSetPrintParamsEx(32,1,1,ALIGN_TYPE_CENTER,1);
+		OsPrnPrintf("۱۲۳۴\n");
+		OsPrnSetPrintParamsEx(24,1,1,ALIGN_TYPE_CENTER,1);
+        OsPrnPrintf("۱۲۳۴\n");
+		OsPrnSetPrintParamsEx(16,1,1,ALIGN_TYPE_CENTER,1);
+        OsPrnPrintf("۱۲۳۴\n");
+		OsPrnPrintf((char *)" \n");// 5line
+		OsPrnPrintf((char *)" \n");// 5line
 
+        if((ret = OsPrnStart()) != RET_OK){
+            DSP_Info(ret == ERR_PRN_BUSY?(char*)"Printer Busy":
+            ret == ERR_PRN_PAPEROUT?(char*)"Printer Paper Out":
+            ret == ERR_PRN_OVERHEAT?(char*)"Printer Overheat":
+            ret == ERR_PRN_OVERVOLTAGE?(char*)"Printer Overvoltage ":
+            ret == ERR_BATTERY_VOLTAGE_TOO_LOW?(char*)"Printer Voltage Too Low":(char*)"Printer Exception");
+            goto exit;
+        }
+    }
+    OsPrnFeed(100);
+exit:
+    OsPrnClose();
+    return ret;
+}
+#endif
 void PlayKeyTone(){
 	PR_INT8 filePath[128] = {0};
 
