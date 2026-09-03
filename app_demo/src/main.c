@@ -65,11 +65,26 @@ void DisplayInit(){
     Disp_vRegisterResumeCallBack(lvgl_disp_resume);
 }
 
+#define SLEEP_TIMEOUT         60*2   // 2 minutes Range 10-3600 minutes
+#define DEEP_SLEEP_TIMEOUT    60*2 //2 minutes   Range 10-300 minutes
+#define SHUTDOWN_TIMEOUT      2  // 1 hour    Range 1-48
+
+//After the device is not in use, the backlight turns off after 2 minutes.
+// After another 2 minutes, the device enters deep sleep mode and consumes very little power.
+// Finally, the device shuts down automatically after 1 hour.
+void SetDeviceSleep()
+{
+    OsSetSysSleepStatus(1);
+    OsSysSleepTime(SLEEP_TIMEOUT); 
+    OsSetSysDeepSleepTime(DEEP_SLEEP_TIMEOUT); 
+    OsSetSleepShutdownTime(SHUTDOWN_TIMEOUT);
+}
 int App_nInitialization()
 {
     char szAppId[] = "linux_app";
     OsLogSetTag(szAppId);  //set logcat tag
     signalHandle();
+    SetDeviceSleep();
     Disp_vSetStatusBarStatus(0);
 	DisplayInit();   //UI init
     DB_bInit(szAppId); //database init

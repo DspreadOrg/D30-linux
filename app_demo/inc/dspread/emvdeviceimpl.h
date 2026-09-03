@@ -255,7 +255,7 @@ typedef enum
 	APP_RC_NUMS,
 }EMV_L2_Return;
 
-int Emv_KernelInit(const EmvTermConfig_t emvTermCfg, EmvCallBack_t t_callbackfun);
+int Emv_Kernel_Init(EmvCallBack_t t_callbackfun);
 
 EMV_L2_Return Emv_Process(EmvTransParams_t emvTransParams);
 
@@ -287,7 +287,7 @@ int Emv_GetKernelVersion(EmvKernelType kernelType,unsigned char *ver);
  mode == 1:app mode The app needs to first open the card reader and prompt to tap card. Call the interface after detecting the card.
 //feturn: 0 succes  OTHER fail
  */
-int Emv_SetOnlineResult(PollCardMode mode,EmvOnlineData_t* pOnlineData);
+int Emv_SetContactlessOnlineResult(PollCardMode mode,EmvOnlineData_t* pOnlineData);
 
 #ifdef __cplusplus
 }

@@ -28,7 +28,7 @@ extern "C"
  * |   Macros
  * +----------------------------------------------------------------------------
  */
-#define APP_VERSION "V1.0.6"
+#define APP_VERSION "V1.0.7"
 
 #if 1
 #define CFG_DBG 
