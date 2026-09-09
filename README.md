@@ -70,7 +70,7 @@ The device supports updating APP resource files and EMV parameters via OTA.
 
 [How to update resource?](https://github.com/DspreadOrg/D30-linux/blob/main/tms/Resource/readme.md)
 
-[How to update emv?](https://github.com/DspreadOrg/qpos-linux/blob/main/tools/Tms/Emv/readme.md)
+[How to update emv?](https://github.com/DspreadOrg/D30-linux/blob/main/tms/Emv/readme.md)
 
 If TMS access and credentials are required, please contact technical personnel.
 
