@@ -64,10 +64,19 @@ The following is a complete card transaction process, with key function codes an
 
 ## 3 TMS
 
-The demo already supports dspread tms,TMS supports MQTT push update task function.Please refer to [ota. c]((https://github.com/DspreadOrg/D30-linux/blob/main/app_demo/src/ota/ota.c)).If TMS access and credentials are required, please contact technical personnel
+The device supports updating APP resource files and EMV parameters via OTA.
+
+[How to update app?](https://github.com/DspreadOrg/D30-linux/blob/main/tms/APP/readme.md)
+
+[How to update resource?](https://github.com/DspreadOrg/D30-linux/blob/main/tms/Resource/readme.md)
+
+[How to update emv?](https://github.com/DspreadOrg/qpos-linux/blob/main/tools/Tms/Emv/readme.md)
+
+If TMS access and credentials are required, please contact technical personnel.
+
+Here is how to use TMS in the demo.Please refer to [ota. c]((https://github.com/DspreadOrg/D30-linux/blob/main/app_demo/src/ota/ota.c)).
 
 ```
-
 void TmsDispCallback(u32 id, char *pMsg)
 {
     u32 i ;
@@ -418,8 +427,6 @@ PR_INT32 EmvL2_Proc(EmvTransParams_t emvTransParams){
     return nEmvRet;
 }
 ```
-
-
 
 If you have special requirements during EMV trading, you can complete them through the following three callback functions
 
