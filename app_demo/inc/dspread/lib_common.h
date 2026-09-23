@@ -105,42 +105,6 @@
 
 /*
  * -----------------------------------------------------------------------------
- * |   Enumerations
- * +----------------------------------------------------------------------------
- */
-
-typedef enum _sha_type_t
-{
-    SHA_1,    // 120 bits
-    SHA_128,  //md5  128bits
-	SHA_224,
-    SHA_256,
-    SHA_384,
-    SHA_512,
-}Sha_Type_t;
-
-typedef enum _des_type_t
-{
-    DES_ECB_ENCRYPT,
-    DES_ECB_DECRYPT,
-    DES_CBC_ENCRYPT,
-    DES_CBC_DECRYPT,
-}Des_Type_t;
-
-typedef enum
-{
-    AES_ENCRYPT,
-    AES_DECRYPT,
-
-    AES_ECB_ENCRYPT,
-    AES_ECB_DECRYPT,
-    AES_CBC_ENCRYPT,
-    AES_CBC_DECRYPT,
-
-}AES_Type_t;
-
-/*
- * -----------------------------------------------------------------------------
  * |   Typedefs
  * +----------------------------------------------------------------------------
  */
