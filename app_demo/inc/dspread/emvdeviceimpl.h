@@ -289,6 +289,11 @@ int Emv_GetKernelVersion(EmvKernelType kernelType,unsigned char *ver);
  */
 int Emv_SetContactlessOnlineResult(PollCardMode mode,EmvOnlineData_t* pOnlineData);
 
+/*
+Func:Check if double tapping is needed
+return 1 need  0 no need
+*/
+int Emv_CheckContactlessDoubleTap(EmvOnlineData_t* pOnlineData);
 #ifdef __cplusplus
 }
 #endif
