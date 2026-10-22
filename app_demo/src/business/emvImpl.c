@@ -123,30 +123,35 @@ int confirmCardInfo(char *pan,int len){
 
 int Emv_GetPanByTag5A(char* pan){
 	int len = 0;
+	int n = 0;
 	unsigned char *value = NULL;
-	char sepflag = 0;
-	char *p = NULL;
-	char szPan[32];
+	char szPan[128] = {0};
 
 	if(pan == NULL){
 		return -1;
 	}
 	value = Emv_GetCoreData(0x5A, &len);
 	OsLog(LOG_DEBUG,"5A Len[%d]",len);
-	if(!value || len < 0){
+	if(!value || len <= 0){
 		value = Emv_GetCoreData(0x57, &len);
-		sepflag = 1;
-		OsLog(LOG_DEBUG,"5A Len[%d]",len);
+		OsLog(LOG_DEBUG,"57 Len[%d]",len);
 	}
-	if(len > 0){
+	if(value && len > 0){
 		memset(szPan,0,sizeof(szPan));
 		PR_nUtilBcd2Asc(len,(char *)value, 0,sizeof(szPan), szPan);
 		OsLog(LOG_DEBUG,"szPan1 [%s]",szPan);
-		p = strstr(szPan,"D");
-		if(p){
-			*p = 0x00;
+		// Tag 5A/57 is BCD encoded: PAN is the leading numeric part.
+		// Tag 57 uses 'D' as the field separator, and an odd length PAN
+		// is right padded with 'F', so keep only the leading digits.
+		while(szPan[n] >= '0' && szPan[n] <= '9'){
+			n++;
 		}
+		szPan[n] = 0x00;
 		OsLog(LOG_DEBUG,"szPan2 [%s]",szPan);
+		if(n == 0){
+			OsLog(LOG_DEBUG,"Emv_GetPanByTag5A Failed");
+			return -1;
+		}
 		strcpy(pan,szPan);
 		return 0;
 	}
@@ -356,6 +361,18 @@ int emv_process_disp(EmvKernelDisp type)
 	}
 	return 0;
 } 
+
+int UpdateKernelId(unsigned char *aid,int aidLen,int *kernelId)
+{
+	if(memcmp(aid,"\xA0\x00\x00\x08\x03\x00\x04",aidLen) == 0 || 
+		memcmp(aid,"\xA0\x00\x00\x08\x03\x00\x02",aidLen) == 0 ||
+		memcmp(aid,"\xA0\x00\x00\x08\x03\x00\x01",aidLen) == 0)
+		{
+			*kernelId = 0x22;
+			return 0;  // set kernel id
+		}
+	return -1;
+}
 static void Initialize_EMV_CallBackFun(EmvCallBack_t *pcallbackfun)
 {
 	pcallbackfun->EMV_AidSelect = aidSelect;
@@ -366,7 +383,7 @@ static void Initialize_EMV_CallBackFun(EmvCallBack_t *pcallbackfun)
 	pcallbackfun->EMV_OnlineProcess = onlineProcess;
 	pcallbackfun->EMV_AfterSelectApp = NULL;
 	pcallbackfun->EMV_AfterReadRecord = NULL;
-	pcallbackfun->EMV_SetKernelId = NULL;
+	pcallbackfun->EMV_SetKernelId = UpdateKernelId;
 }
 
 PR_INT32 EmvL2_Init(){
@@ -393,7 +410,7 @@ PR_INT32 EmvL2_Proc(EmvTransParams_t emvTransParams){
 		ret = onlineProcess(&emvOnlineData);
 		if(ret == PR_NORMAL)
 		{
-			if(memcmp(emvOnlineData.iccResponse,"00",2) == 0 && emvOnlineData.ackdatalen > 0)
+			if(memcmp(emvOnlineData.iccResponse,"00",2) == 0 &&Emv_CheckContactlessDoubleTap(&emvOnlineData))
 				ret = Emv_SetContactlessOnlineResult(KERNEL_POLL_CTL_MODE,&emvOnlineData);
 		}
 

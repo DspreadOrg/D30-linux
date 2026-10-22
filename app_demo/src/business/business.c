@@ -336,7 +336,7 @@ void read_cards_process(){
                 event_ui_register(UI_RESULT_FAIL);
                 break;
             case APP_RC_TRANS_REVERSEL:
-// Start reversal trading
+                // Start reversal trading
                 set_fail_msg("Execute a reversal transaction");
                 event_ui_register(UI_RESULT_FAIL);
                 break;
