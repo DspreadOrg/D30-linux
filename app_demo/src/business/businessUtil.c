@@ -553,6 +553,7 @@ PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
 // OSPRN PUTELECSIGNATABYPG ();
 			if (access(FilePath, F_OK) == 0){
 				OsPrnPutImage((unsigned char *)FilePath);
+				remove(FilePath);  //Delete signature files to avoid file accumulation.
 				//
 			}else{
 				OsPrnPrintf((char *)"CARDHOLDER SIGNATURE ");
@@ -586,7 +587,7 @@ exit:
 	remove(FilePath);
     return ret;
 }
-#else
+#else    //Persian language printing example
 PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
 {
     PR_INT32 ret;
@@ -691,6 +692,7 @@ PR_INT32 PrintOrder(int nCount,TransactionData *pTxnRec)
 			//     OsPrnPutElecSignDataByJpg();
 			if (access(FilePath, F_OK) == 0){
 				OsPrnPutImage((unsigned char *)FilePath);
+				remove(FilePath);
 			}else{
 				OsPrnPrintf((char *)"CARDHOLDER SIGNATURE\n");
 				OsPrnPrintf((char *)" \n");// 5line
