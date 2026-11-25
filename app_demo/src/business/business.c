@@ -30,6 +30,7 @@ static const char *EMV_RETURN_CODE[] =
 	"APP_RC_NFC_MULTI_CARD",
 	"APP_RC_NFC_TRY_AGAIN",
 	"APP_RC_TRANS_REVERSEL",
+    "APP_RC_TIMEOUT",
 	"APP_RC_NUMS",
 };
 #endif
